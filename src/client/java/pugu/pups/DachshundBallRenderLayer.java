@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class DachshundBallRenderLayer extends BlockAndItemGeoLayer<PupEntity, Vo
         }
 
         ItemStackRenderState stackState = new ItemStackRenderState();
-        this.itemModelResolver.updateForNonLiving(stackState, new ItemStack(ModItems.BALL), ItemDisplayContext.GROUND, animatable);
+        this.itemModelResolver.updateForNonLiving(stackState, animatable.getCarriedBall(), ItemDisplayContext.GROUND, animatable);
 
         return List.of(RenderData.item("mouth", ItemDisplayContext.GROUND, stackState));
     }

@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "more-pups:item/ball"
+    "layer0": "more-pups:item/ball",
+    "layer1": "more-pups:item/ball_overlay"
   }
 }

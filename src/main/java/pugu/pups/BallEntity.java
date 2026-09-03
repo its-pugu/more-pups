@@ -33,7 +33,7 @@ public class BallEntity extends ThrowableItemProjectile {
 
     private void dropAsItem() {
         if (!this.level().isClientSide()) {
-            ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), new ItemStack(ModItems.BALL));
+            ItemEntity itemEntity = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), this.getItem().copy());
             itemEntity.setDeltaMovement(0, 0, 0);
             this.level().addFreshEntity(itemEntity);
         }

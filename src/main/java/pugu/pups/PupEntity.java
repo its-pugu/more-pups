@@ -8,13 +8,14 @@ import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.object.PlayState;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.wolf.Wolf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
@@ -22,27 +23,31 @@ public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation HEAD_TILT_ANIM = RawAnimation.begin().thenPlayAndHold("head_tilt");
     private static final RawAnimation HEAD_NEUTRAL_ANIM = RawAnimation.begin().thenPlayAndHold("head_neutral");
 
+    private static final EntityDataAccessor<ItemStack> DATA_CARRIED_BALL =
+            SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.ITEM_STACK);
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public PupEntity(EntityType<? extends Wolf> entityType, Level world) {
         super(entityType, world);
     }
 
-    private static final EntityDataAccessor<Boolean> DATA_CARRYING_BALL =
-            SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.BOOLEAN);
-
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_CARRYING_BALL, false);
+        builder.define(DATA_CARRIED_BALL, ItemStack.EMPTY);
     }
 
     public boolean isCarryingBall() {
-        return this.entityData.get(DATA_CARRYING_BALL);
+        return !this.entityData.get(DATA_CARRIED_BALL).isEmpty();
     }
 
-    public void setCarryingBall(boolean carrying) {
-        this.entityData.set(DATA_CARRYING_BALL, carrying);
+    public ItemStack getCarriedBall() {
+        return this.entityData.get(DATA_CARRIED_BALL);
+    }
+
+    public void setCarriedBall(ItemStack stack) {
+        this.entityData.set(DATA_CARRIED_BALL, stack);
     }
 
     @Override
@@ -96,5 +101,4 @@ public class PupEntity extends Wolf implements GeoEntity {
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
-
 }

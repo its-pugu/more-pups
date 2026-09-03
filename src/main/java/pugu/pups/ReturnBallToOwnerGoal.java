@@ -9,6 +9,7 @@ import java.util.EnumSet;
 
 public class ReturnBallToOwnerGoal extends Goal {
     private final PupEntity dog;
+    private int recalculatePathCooldown = 0;
 
     public ReturnBallToOwnerGoal(PupEntity dog) {
         this.dog = dog;
@@ -24,8 +25,6 @@ public class ReturnBallToOwnerGoal extends Goal {
     public boolean canContinueToUse() {
         return this.canUse();
     }
-
-    private int recalculatePathCooldown = 0;
 
     @Override
     public void tick() {
@@ -46,11 +45,11 @@ public class ReturnBallToOwnerGoal extends Goal {
 
         if (this.dog.distanceToSqr(owner) < 6.25) {
             if (!this.dog.level().isClientSide()) {
-                ItemEntity droppedBall = new ItemEntity(this.dog.level(), owner.getX(), owner.getY(), owner.getZ(), new ItemStack(ModItems.BALL));
+                ItemEntity droppedBall = new ItemEntity(this.dog.level(), owner.getX(), owner.getY(), owner.getZ(), this.dog.getCarriedBall());
                 this.dog.level().addFreshEntity(droppedBall);
             }
 
-            this.dog.setCarryingBall(false);
+            this.dog.setCarriedBall(ItemStack.EMPTY);
         }
     }
 }
