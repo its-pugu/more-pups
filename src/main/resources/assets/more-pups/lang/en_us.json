@@ -2,5 +2,6 @@
   "item.more-pups.dog_treat": "Dog Treat",
   "entity.more-pups.dachshund": "Dachshund",
   "creativeTab.more-pups": "More Pups",
-  "item.more-pups.ball": "Ball"
+  "item.more-pups.ball": "Ball",
+  "item.more-pups.ball.dyed": "%s Ball"
 }

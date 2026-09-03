@@ -21,6 +21,8 @@ public class MorePups implements ModInitializer {
 		ModItems.initialize();
 		ModEntityTypes.initialize();
 		ModCreativeTabs.initialize();
+		ModDataComponents.initialize();
+		ModRecipes.initialize();
 	}
 
 	public static Identifier id(String path) {

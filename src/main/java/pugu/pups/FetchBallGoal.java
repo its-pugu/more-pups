@@ -3,8 +3,8 @@ package pugu.pups;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
-
 
 import java.util.EnumSet;
 import java.util.List;
@@ -56,8 +56,18 @@ public class FetchBallGoal extends Goal {
         this.dog.getLookControl().setLookAt(this.targetBall, 10.0F, this.dog.getMaxHeadXRot());
 
         if (this.dog.distanceToSqr(this.targetBall) < 2.25) {
+            ItemStack carried;
+
+            if (this.targetBall instanceof BallEntity ball) {
+                carried = ball.getItem().copy();
+            } else if (this.targetBall instanceof ItemEntity itemEntity) {
+                carried = itemEntity.getItem().copy();
+            } else {
+                carried = new ItemStack(ModItems.BALL);
+            }
+
             this.targetBall.discard();
-            this.dog.setCarryingBall(true);
+            this.dog.setCarriedBall(carried);
         }
     }
 
