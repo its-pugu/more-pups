@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BWB",
+    "WSW",
+    "BWB"
+  ],
+  "key": {
+    "B": "minecraft:bone_meal",
+    "W": "minecraft:wheat",
+    "S": "minecraft:beef"
+  },
+  "result": {
+    "id": "more-pups:dog_treat",
+    "count": 4
+  }
+}

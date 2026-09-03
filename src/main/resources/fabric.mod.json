@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "more-pups",
+	"version": "${version}",
+	"name": "More Pups",
+	"description": "Adds more dog breeds and items to Minecraft",
+	"authors": [
+		"Pugu_"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/more-pups/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"pugu.pups.MorePups"
+		],
+		"client": [
+			"pugu.pups.MorePupsClient"
+		],
+		"fabric-datagen": [
+			"pugu.pups.MorePupsDataGenerator"
+		]
+	},
+	"mixins": [
+		"more-pups.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*",
+		"geckolib": "*"
+	}
+}
