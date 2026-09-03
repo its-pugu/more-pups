@@ -12,6 +12,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 
 public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
@@ -23,6 +26,31 @@ public class PupEntity extends Wolf implements GeoEntity {
 
     public PupEntity(EntityType<? extends Wolf> entityType, Level world) {
         super(entityType, world);
+    }
+
+    private static final EntityDataAccessor<Boolean> DATA_CARRYING_BALL =
+            SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.BOOLEAN);
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_CARRYING_BALL, false);
+    }
+
+    public boolean isCarryingBall() {
+        return this.entityData.get(DATA_CARRYING_BALL);
+    }
+
+    public void setCarryingBall(boolean carrying) {
+        this.entityData.set(DATA_CARRYING_BALL, carrying);
+    }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(4, new ComeToOwnerWithBallGoal(this));
+        this.goalSelector.addGoal(3, new FetchBallGoal(this));
+        this.goalSelector.addGoal(2, new ReturnBallToOwnerGoal(this));
     }
 
     @Override
@@ -68,4 +96,5 @@ public class PupEntity extends Wolf implements GeoEntity {
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
+
 }

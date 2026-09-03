@@ -18,6 +18,7 @@ public class ModCreativeTabs {
             .title(Component.translatable("creativeTab.more-pups"))
             .displayItems((params, output) -> {
                 output.accept(ModItems.DOG_TREAT);
+                output.accept(ModItems.BALL);
             })
             .build();
 

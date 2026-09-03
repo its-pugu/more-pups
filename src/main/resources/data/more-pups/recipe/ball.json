@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " L ",
+    "LLL",
+    " L "
+  ],
+  "key": {
+    "L": "minecraft:leather"
+  },
+  "result": {
+    "id": "more-pups:ball",
+    "count": 1
+  }
+}

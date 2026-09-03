@@ -13,6 +13,8 @@ public class ModItems {
 
     public static final ResourceKey<Item> DOG_TREAT_ID = ModItemIds.create("dog_treat");
     public static final Item DOG_TREAT = register(DOG_TREAT_ID, Item::new, new Item.Properties());
+    public static final ResourceKey<Item> BALL_ID = ModItemIds.create("ball");
+    public static final Item BALL = register(BALL_ID, BallItem::new, new Item.Properties().stacksTo(16));
 
     public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
         Item item = itemFactory.apply(settings.setId(itemKey));

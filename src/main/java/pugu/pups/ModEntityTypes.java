@@ -12,6 +12,9 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 
 public class ModEntityTypes {
 
+    public static final EntityType<BallEntity> BALL = register("ball",
+            EntityType.Builder.of(BallEntity::new, MobCategory.MISC).sized(0.25f, 0.25f));
+
     public static final EntityType<PupEntity> DACHSHUND = register("dachshund",
             EntityType.Builder.of(PupEntity::new, MobCategory.CREATURE).sized(0.65f, 0.6f));
 
