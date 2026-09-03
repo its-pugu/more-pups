@@ -8,10 +8,11 @@
 		"Pugu_"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/YourUsername/more-pups",
+		"sources": "https://github.com/YourUsername/more-pups",
+		"issues": "https://github.com/YourUsername/more-pups/issues"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/more-pups/icon.png",
 	"environment": "*",
 	"entrypoints": {
