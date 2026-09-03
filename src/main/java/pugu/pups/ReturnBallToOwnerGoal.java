@@ -25,6 +25,8 @@ public class ReturnBallToOwnerGoal extends Goal {
         return this.canUse();
     }
 
+    private int recalculatePathCooldown = 0;
+
     @Override
     public void tick() {
         LivingEntity owner = this.dog.getOwner();
@@ -33,8 +35,14 @@ public class ReturnBallToOwnerGoal extends Goal {
             return;
         }
 
-        this.dog.getNavigation().moveTo(owner, 1.3);
         this.dog.getLookControl().setLookAt(owner, 10.0F, this.dog.getMaxHeadXRot());
+
+        if (this.recalculatePathCooldown <= 0) {
+            this.dog.getNavigation().moveTo(owner, 1.3);
+            this.recalculatePathCooldown = 10;
+        } else {
+            this.recalculatePathCooldown--;
+        }
 
         if (this.dog.distanceToSqr(owner) < 6.25) {
             if (!this.dog.level().isClientSide()) {

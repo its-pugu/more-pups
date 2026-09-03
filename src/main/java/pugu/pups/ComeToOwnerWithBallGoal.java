@@ -38,10 +38,18 @@ public class ComeToOwnerWithBallGoal extends Goal {
                 && this.dog.distanceToSqr(this.owner) > 4.0;
     }
 
+    private int recalculatePathCooldown = 0;
+
     @Override
     public void tick() {
-        this.dog.getNavigation().moveTo(this.owner, 1.2);
         this.dog.getLookControl().setLookAt(this.owner, 10.0F, this.dog.getMaxHeadXRot());
+
+        if (this.recalculatePathCooldown <= 0) {
+            this.dog.getNavigation().moveTo(this.owner, 1.2);
+            this.recalculatePathCooldown = 10;
+        } else {
+            this.recalculatePathCooldown--;
+        }
     }
 
     @Override

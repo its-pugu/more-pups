@@ -17,7 +17,7 @@ public class MorePups implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Hello Fabric world!");
+		LOGGER.info("WOOF!");
 		ModItems.initialize();
 		ModEntityTypes.initialize();
 		ModCreativeTabs.initialize();
