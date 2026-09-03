@@ -13,7 +13,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 public class ModEntityTypes {
 
     public static final EntityType<PupEntity> DACHSHUND = register("dachshund",
-            EntityType.Builder.of(PupEntity::new, MobCategory.CREATURE).sized(1.0f, 0.7f));
+            EntityType.Builder.of(PupEntity::new, MobCategory.CREATURE).sized(0.65f, 0.6f));
 
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, MorePups.id(name));

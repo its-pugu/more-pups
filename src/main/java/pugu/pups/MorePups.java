@@ -20,6 +20,7 @@ public class MorePups implements ModInitializer {
 		LOGGER.info("Hello Fabric world!");
 		ModItems.initialize();
 		ModEntityTypes.initialize();
+		ModCreativeTabs.initialize();
 	}
 
 	public static Identifier id(String path) {

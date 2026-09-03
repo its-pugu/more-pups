@@ -10,10 +10,14 @@ import com.geckolib.animation.RawAnimation;
 import com.geckolib.util.GeckoLibUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
+    private static final RawAnimation SIT_ANIM = RawAnimation.begin().thenPlayAndHold("sit");
+    private static final RawAnimation HEAD_TILT_ANIM = RawAnimation.begin().thenPlayAndHold("head_tilt");
+    private static final RawAnimation HEAD_NEUTRAL_ANIM = RawAnimation.begin().thenPlayAndHold("head_neutral");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -24,6 +28,8 @@ public class PupEntity extends Wolf implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<PupEntity>("Walking", 5, this::walkAnimController));
+        controllers.add(new AnimationController<PupEntity>("HeadTilt", 5, this::headTiltAnimController));
+        controllers.add(new AnimationController<PupEntity>("Sitting", 0, this::sitAnimController));
     }
 
     private <E extends PupEntity> PlayState walkAnimController(AnimationTest<E> animTest) {
@@ -36,6 +42,26 @@ public class PupEntity extends Wolf implements GeoEntity {
         animTest.controller().reset();
 
         return PlayState.STOP;
+    }
+
+    private <E extends PupEntity> PlayState sitAnimController(AnimationTest<E> animTest) {
+        if (animTest.animatable().isInSittingPose()) {
+            return animTest.setAndContinue(SIT_ANIM);
+        }
+
+        animTest.controller().reset();
+
+        return PlayState.STOP;
+    }
+
+    private <E extends PupEntity> PlayState headTiltAnimController(AnimationTest<E> animTest) {
+        Player nearestPlayer = animTest.animatable().level().getNearestPlayer(animTest.animatable(), 6.0);
+
+        if (nearestPlayer != null && isFood(nearestPlayer.getMainHandItem())) {
+            return animTest.setAndContinue(HEAD_TILT_ANIM);
+        }
+
+        return animTest.setAndContinue(HEAD_NEUTRAL_ANIM);
     }
 
     @Override
