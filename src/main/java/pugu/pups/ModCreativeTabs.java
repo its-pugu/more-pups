@@ -19,6 +19,7 @@ public class ModCreativeTabs {
             .displayItems((params, output) -> {
                 output.accept(ModItems.DOG_TREAT);
                 output.accept(ModItems.BALL);
+                output.accept(ModBlocks.DOG_BED);
             })
             .build();
 

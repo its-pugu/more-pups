@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 public class BallDyeRecipe extends CustomRecipe {
     @Override
     public boolean matches(CraftingInput input, Level level) {
-        MorePups.LOGGER.info("BallDyeRecipe.matches called, grid size={}", input.size());
 
         boolean foundBall = false;
         boolean foundDye = false;
