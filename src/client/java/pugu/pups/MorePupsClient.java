@@ -20,7 +20,7 @@ import java.util.List;
 public class MorePupsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        EntityRenderers.register(ModEntityTypes.DACHSHUND, DachshundEntityRenderer::new);
+        EntityRenderers.register(ModEntityTypes.PUP, PupEntityRenderer::new);
         EntityRenderers.register(ModEntityTypes.BALL, ThrownItemRenderer::new);
 
         BlockColorRegistry.register(List.of(new BlockTintSource() {

@@ -15,7 +15,7 @@ public class ModEntityTypes {
     public static final EntityType<BallEntity> BALL = register("ball",
             EntityType.Builder.of(BallEntity::new, MobCategory.MISC).sized(0.25f, 0.25f));
 
-    public static final EntityType<PupEntity> DACHSHUND = register("dachshund",
+    public static final EntityType<PupEntity> PUP = register("pup",
             EntityType.Builder.of(PupEntity::new, MobCategory.CREATURE).sized(0.65f, 0.6f));
 
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
@@ -24,6 +24,6 @@ public class ModEntityTypes {
     }
 
     public static void initialize() {
-        FabricDefaultAttributeRegistry.register(DACHSHUND, Wolf.createAttributes());
+        FabricDefaultAttributeRegistry.register(PUP, Wolf.createAttributes());
     }
 }

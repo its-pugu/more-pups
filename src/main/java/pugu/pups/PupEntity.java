@@ -9,6 +9,7 @@ import com.geckolib.animation.object.PlayState;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.util.GeckoLibUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -17,6 +18,8 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
@@ -24,9 +27,18 @@ public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation HEAD_TILT_ANIM = RawAnimation.begin().thenPlayAndHold("head_tilt");
     private static final RawAnimation HEAD_NEUTRAL_ANIM = RawAnimation.begin().thenPlayAndHold("head_neutral");
     private static final RawAnimation SLEEP_ANIM = RawAnimation.begin().thenPlayAndHold("sleep");
+
     public static final DataTicket<Boolean> SLEEPING_TICKET =
             DataTicket.create("more_pups_sleeping", Boolean.class);
+    public static final DataTicket<DogBreed> BREED_TICKET =
+            DataTicket.create("more_pups_breed", DogBreed.class);
+    public static final DataTicket<Boolean> TAMED_TICKET =
+            DataTicket.create("more_pups_tamed", Boolean.class);
+    public static final DataTicket<Integer> COLLAR_TICKET =
+            DataTicket.create("more_pups_collar", Integer.class);
 
+    private static final EntityDataAccessor<Integer> DATA_BREED =
+            SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<ItemStack> DATA_CARRIED_BALL =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Boolean> DATA_SLEEPING =
@@ -43,6 +55,15 @@ public class PupEntity extends Wolf implements GeoEntity {
         super.defineSynchedData(builder);
         builder.define(DATA_CARRIED_BALL, ItemStack.EMPTY);
         builder.define(DATA_SLEEPING, false);
+        builder.define(DATA_BREED, 0);
+    }
+
+    public DogBreed getBreed() {
+        return DogBreed.values()[this.entityData.get(DATA_BREED)];
+    }
+
+    public void setBreed(DogBreed breed) {
+        this.entityData.set(DATA_BREED, breed.ordinal());
     }
 
     public boolean isCarryingBall() {
@@ -63,6 +84,27 @@ public class PupEntity extends Wolf implements GeoEntity {
 
     public void setSleeping(boolean sleeping) {
         this.entityData.set(DATA_SLEEPING, sleeping);
+    }
+
+    @Override
+    public Component getName() {
+        if (this.hasCustomName()) {
+            return super.getName();
+        }
+
+        return Component.translatable("entity." + MorePups.MOD_ID + ".pup." + this.getBreed().getSerializedName());
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.store("breed", DogBreed.CODEC, this.getBreed());
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        this.setBreed(input.read("breed", DogBreed.CODEC).orElse(DogBreed.DACHSHUND));
     }
 
     @Override
@@ -127,5 +169,4 @@ public class PupEntity extends Wolf implements GeoEntity {
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
-
 }

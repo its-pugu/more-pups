@@ -1,8 +1,11 @@
 {
   "item.more-pups.dog_treat": "Dog Treat",
   "entity.more-pups.dachshund": "Dachshund",
+  "entity.more-pups.pug": "Pug",
   "creativeTab.more-pups": "More Pups",
   "item.more-pups.ball": "Ball",
   "item.more-pups.ball.dyed": "%s Ball",
-  "block.more-pups.dog_bed": "Dog Bed"
+  "block.more-pups.dog_bed": "Dog Bed",
+  "item.more-pups.dachshund_spawn_egg": "Dachshund Spawn Egg",
+  "item.more-pups.pug_spawn_egg": "Pug Spawn Egg"
 }

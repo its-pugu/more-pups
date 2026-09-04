@@ -7,16 +7,23 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 
-public class DachshundEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntityRenderState> {
-    public DachshundEntityRenderer(EntityRendererProvider.Context context) {
-        super(context, new DachshundGeoModel());
+public class PupEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntityRenderState> {
+    public PupEntityRenderer(EntityRendererProvider.Context context) {
+        super(context, new PupGeoModel());
         withRenderLayer(new DachshundBallRenderLayer(context, this));
         withRenderLayer(new DachshundEyesRenderLayer(this));
+        withRenderLayer(new PupCollarRenderLayer(this));
     }
 
     @Override
     public float getMotionAnimThreshold(PupEntity animatable) {
         return 0.015f;
+    }
+
+    @Override
+    public void addRenderData(PupEntity animatable, Void relatedObject, LivingEntityRenderState renderState, float partialTick) {
+        super.addRenderData(animatable, relatedObject, renderState, partialTick);
+        renderState.addGeckolibData(PupEntity.BREED_TICKET, animatable.getBreed());
     }
 
     @Override

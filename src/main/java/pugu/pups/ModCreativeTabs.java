@@ -20,6 +20,8 @@ public class ModCreativeTabs {
                 output.accept(ModItems.DOG_TREAT);
                 output.accept(ModItems.BALL);
                 output.accept(ModBlocks.DOG_BED);
+                output.accept(ModItems.PUG_SPAWN_EGG);
+                output.accept(ModItems.DACHSHUND_SPAWN_EGG);
             })
             .build();
 
