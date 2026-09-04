@@ -15,6 +15,14 @@ public class ModDataComponents {
                     .networkSynchronized(ByteBufCodecs.idMapper(DyeColor::byId, DyeColor::getId))
                     .build()
     );
+    public static final DataComponentType<DyeColor> BED_DYE_COLOR = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            MorePups.id("bed_dye_color"),
+            DataComponentType.<DyeColor>builder()
+                    .persistent(DyeColor.CODEC)
+                    .networkSynchronized(ByteBufCodecs.idMapper(DyeColor::byId, DyeColor::getId))
+                    .build()
+    );
 
     public static void initialize() {
     }

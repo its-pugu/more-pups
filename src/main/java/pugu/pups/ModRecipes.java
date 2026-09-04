@@ -12,7 +12,13 @@ public class ModRecipes {
             StreamCodec.unit(new BallDyeRecipe())
     );
 
+    public static final RecipeSerializer<BedDyeRecipe> BED_DYE_SERIALIZER = new RecipeSerializer<>(
+            MapCodec.unit(BedDyeRecipe::new),
+            StreamCodec.unit(new BedDyeRecipe())
+    );
+
     public static void initialize() {
         Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, MorePups.id("ball_dye"), BALL_DYE_SERIALIZER);
+        Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, MorePups.id("bed_dye"), BED_DYE_SERIALIZER);
     }
 }

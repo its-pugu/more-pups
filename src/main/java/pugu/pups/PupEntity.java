@@ -7,6 +7,7 @@ import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.state.AnimationTest;
 import com.geckolib.animation.object.PlayState;
 import com.geckolib.animation.RawAnimation;
+import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.util.GeckoLibUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -22,9 +23,14 @@ public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation SIT_ANIM = RawAnimation.begin().thenPlayAndHold("sit");
     private static final RawAnimation HEAD_TILT_ANIM = RawAnimation.begin().thenPlayAndHold("head_tilt");
     private static final RawAnimation HEAD_NEUTRAL_ANIM = RawAnimation.begin().thenPlayAndHold("head_neutral");
+    private static final RawAnimation SLEEP_ANIM = RawAnimation.begin().thenPlayAndHold("sleep");
+    public static final DataTicket<Boolean> SLEEPING_TICKET =
+            DataTicket.create("more_pups_sleeping", Boolean.class);
 
     private static final EntityDataAccessor<ItemStack> DATA_CARRIED_BALL =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.ITEM_STACK);
+    private static final EntityDataAccessor<Boolean> DATA_SLEEPING =
+            SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -36,6 +42,7 @@ public class PupEntity extends Wolf implements GeoEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_CARRIED_BALL, ItemStack.EMPTY);
+        builder.define(DATA_SLEEPING, false);
     }
 
     public boolean isCarryingBall() {
@@ -48,6 +55,14 @@ public class PupEntity extends Wolf implements GeoEntity {
 
     public void setCarriedBall(ItemStack stack) {
         this.entityData.set(DATA_CARRIED_BALL, stack);
+    }
+
+    public boolean isSleeping() {
+        return this.entityData.get(DATA_SLEEPING);
+    }
+
+    public void setSleeping(boolean sleeping) {
+        this.entityData.set(DATA_SLEEPING, sleeping);
     }
 
     @Override
@@ -63,6 +78,7 @@ public class PupEntity extends Wolf implements GeoEntity {
         controllers.add(new AnimationController<PupEntity>("Walking", 5, this::walkAnimController));
         controllers.add(new AnimationController<PupEntity>("HeadTilt", 5, this::headTiltAnimController));
         controllers.add(new AnimationController<PupEntity>("Sitting", 0, this::sitAnimController));
+        controllers.add(new AnimationController<PupEntity>("Sleeping", 0, this::sleepAnimController));
     }
 
     private <E extends PupEntity> PlayState walkAnimController(AnimationTest<E> animTest) {
@@ -78,7 +94,7 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     private <E extends PupEntity> PlayState sitAnimController(AnimationTest<E> animTest) {
-        if (animTest.animatable().isInSittingPose()) {
+        if (animTest.animatable().isInSittingPose() && !animTest.animatable().isSleeping()) {
             return animTest.setAndContinue(SIT_ANIM);
         }
 
@@ -97,8 +113,19 @@ public class PupEntity extends Wolf implements GeoEntity {
         return animTest.setAndContinue(HEAD_NEUTRAL_ANIM);
     }
 
+    private <E extends PupEntity> PlayState sleepAnimController(AnimationTest<E> animTest) {
+        if (animTest.animatable().isSleeping()) {
+            return animTest.setAndContinue(SLEEP_ANIM);
+        }
+
+        animTest.controller().reset();
+
+        return PlayState.STOP;
+    }
+
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
     }
+
 }

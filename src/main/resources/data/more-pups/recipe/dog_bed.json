@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WW",
+    "PP"
+  ],
+  "key": {
+    "W": "minecraft:white_wool",
+    "P": "#minecraft:planks"
+  },
+  "result": {
+    "id": "more-pups:dog_bed",
+    "count": 1
+  }
+}

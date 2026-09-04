@@ -25,6 +25,8 @@ public class MorePups implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("WOOF!");
 		ModItems.initialize();
+		ModBlocks.initialize();
+		ModBlockEntities.initialize();
 		ModEntityTypes.initialize();
 		ModCreativeTabs.initialize();
 		ModDataComponents.initialize();
@@ -39,6 +41,7 @@ public class MorePups implements ModInitializer {
 				wolf.setAttached(ModAttachments.DOG_STATE, payload.state());
 				wolf.setAttached(ModAttachments.FOLLOW_DISTANCE, Mth.clamp(payload.followDistance(), 2, 12));
 				wolf.setAttached(ModAttachments.GUARD_RADIUS, Mth.clamp(payload.guardRadius(), 2, 32));
+
 				wolf.setAttached(ModAttachments.RELAX_RADIUS, Mth.clamp(payload.relaxRadius(), 2, 32));
 
 				if (payload.state() == DogBehaviorState.FOLLOW) {
@@ -56,6 +59,7 @@ public class MorePups implements ModInitializer {
 
 				wolf.getGoalSelector().addGoal(6, new FollowCloselyGoal(wolf));
 				wolf.getGoalSelector().addGoal(6, new GuardGoal(wolf));
+				wolf.getGoalSelector().addGoal(5, new SleepInBedGoal(wolf));
 				wolf.getGoalSelector().addGoal(6, new RelaxGoal(wolf));
 			}
 		});

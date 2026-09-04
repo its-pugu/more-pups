@@ -11,6 +11,7 @@ public class DachshundEntityRenderer extends GeoEntityRenderer<PupEntity, Living
     public DachshundEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new DachshundGeoModel());
         withRenderLayer(new DachshundBallRenderLayer(context, this));
+        withRenderLayer(new DachshundEyesRenderLayer(this));
     }
 
     @Override
