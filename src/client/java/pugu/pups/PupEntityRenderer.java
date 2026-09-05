@@ -11,7 +11,7 @@ public class PupEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntity
     public PupEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new PupGeoModel());
         withRenderLayer(new DachshundBallRenderLayer(context, this));
-        withRenderLayer(new DachshundEyesRenderLayer(this));
+        withRenderLayer(new PupEyesRenderLayer(this));
         withRenderLayer(new PupCollarRenderLayer(this));
     }
 

@@ -32,6 +32,12 @@ public class ModItems {
                     .spawnEgg(ModEntityTypes.PUP)
                     .component(DataComponents.ENTITY_DATA,
                             TypedEntityData.of(ModEntityTypes.PUP, breedTag(DogBreed.PUG))));
+    public static final ResourceKey<Item> LABRADOR_SPAWN_EGG_ID = ModItemIds.create("labrador_spawn_egg");
+    public static final Item LABRADOR_SPAWN_EGG = register(LABRADOR_SPAWN_EGG_ID, SpawnEggItem::new,
+            new Item.Properties()
+                    .spawnEgg(ModEntityTypes.PUP)
+                    .component(DataComponents.ENTITY_DATA,
+                            TypedEntityData.of(ModEntityTypes.PUP, breedTag(DogBreed.LABRADOR))));
 
     public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
         Item item = itemFactory.apply(settings.setId(itemKey));

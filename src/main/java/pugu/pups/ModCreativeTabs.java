@@ -22,6 +22,7 @@ public class ModCreativeTabs {
                 output.accept(ModBlocks.DOG_BED);
                 output.accept(ModItems.PUG_SPAWN_EGG);
                 output.accept(ModItems.DACHSHUND_SPAWN_EGG);
+                output.accept(ModItems.LABRADOR_SPAWN_EGG);
             })
             .build();
 

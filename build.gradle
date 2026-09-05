@@ -1,7 +1,19 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'pl.allegro.tech.build.axion-release' version '1.21.2'
 	id 'maven-publish'
 }
+
+scmVersion {
+	tag {
+		prefix.set('v')
+	}
+	snapshotCreator { version, position -> '' }
+	versionCreator('simple')
+}
+
+version = scmVersion.version
+
 loom {
 	splitEnvironmentSourceSets()
 
