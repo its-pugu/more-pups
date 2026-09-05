@@ -15,7 +15,9 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +47,20 @@ public class PupEntity extends Wolf implements GeoEntity {
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Boolean> DATA_SLEEPING =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDimensions DACHSHUND_DIMENSIONS = EntityDimensions.scalable(0.5F, 0.5F);
+    private static final EntityDimensions PUG_DIMENSIONS = EntityDimensions.scalable(0.6F, 0.6F);
+    private static final EntityDimensions LABRADOR_DIMENSIONS = EntityDimensions.scalable(0.8F, 0.85F);
+
+    @Override
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        EntityDimensions dimensions = switch (this.getBreed()) {
+            case DACHSHUND -> DACHSHUND_DIMENSIONS;
+            case PUG -> PUG_DIMENSIONS;
+            case LABRADOR -> LABRADOR_DIMENSIONS;
+        };
+
+        return this.isBaby() ? dimensions.scale(0.5F) : dimensions;
+    }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -66,6 +82,7 @@ public class PupEntity extends Wolf implements GeoEntity {
 
     public void setBreed(DogBreed breed) {
         this.entityData.set(DATA_BREED, breed.ordinal());
+        this.refreshDimensions();
     }
 
     public boolean isCarryingBall() {
@@ -95,6 +112,15 @@ public class PupEntity extends Wolf implements GeoEntity {
         }
 
         return Component.translatable("entity." + MorePups.MOD_ID + ".pup." + this.getBreed().getSerializedName());
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        if (DATA_BREED.equals(key)) {
+            this.refreshDimensions();
+        }
+
+        super.onSyncedDataUpdated(key);
     }
 
     @Override
@@ -150,6 +176,11 @@ public class PupEntity extends Wolf implements GeoEntity {
             case PUG -> ModSounds.PUG_DEATH;
             case LABRADOR -> ModSounds.LABRADOR_DEATH;
         };
+    }
+
+    @Override
+    public int getAmbientSoundInterval() {
+        return 400;
     }
 
     private <E extends PupEntity> PlayState walkAnimController(AnimationTest<E> animTest) {
