@@ -8,19 +8,24 @@ public class PupGeoModel extends GeoModel<PupEntity> {
     @Override
     public Identifier getModelResource(GeoRenderState renderState) {
         return Identifier.fromNamespaceAndPath(MorePups.MOD_ID,
-                "entity/" + breedName(renderState));
-    }
-
-    @Override
-    public Identifier getTextureResource(GeoRenderState renderState) {
-        return Identifier.fromNamespaceAndPath(MorePups.MOD_ID,
-                "textures/entity/" + breedName(renderState) + ".png");
+                "entity/" + breedName(renderState) + suffix(renderState));
     }
 
     @Override
     public Identifier getAnimationResource(PupEntity animatable) {
         return Identifier.fromNamespaceAndPath(MorePups.MOD_ID,
-                "entity/" + animatable.getBreed().getSerializedName());
+                "entity/" + animatable.getBreed().getSerializedName()
+                        + (animatable.isBaby() ? "_baby" : ""));
+    }
+
+    private String suffix(GeoRenderState renderState) {
+        return renderState.getOrDefaultGeckolibData(PupEntity.BABY_TICKET, false) ? "_baby" : "";
+    }
+
+    @Override
+    public Identifier getTextureResource(GeoRenderState renderState) {
+        return Identifier.fromNamespaceAndPath(MorePups.MOD_ID,
+                "textures/entity/" + breedName(renderState) + suffix(renderState) + ".png");
     }
 
     private String breedName(GeoRenderState renderState) {

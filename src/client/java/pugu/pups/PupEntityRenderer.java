@@ -24,6 +24,7 @@ public class PupEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntity
     public void addRenderData(PupEntity animatable, Void relatedObject, LivingEntityRenderState renderState, float partialTick) {
         super.addRenderData(animatable, relatedObject, renderState, partialTick);
         renderState.addGeckolibData(PupEntity.BREED_TICKET, animatable.getBreed());
+        renderState.addGeckolibData(PupEntity.BABY_TICKET, animatable.isBaby());
     }
 
     @Override

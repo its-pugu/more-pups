@@ -13,17 +13,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jetbrains.annotations.Nullable;
 
 public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
@@ -40,6 +40,8 @@ public class PupEntity extends Wolf implements GeoEntity {
             DataTicket.create("more_pups_tamed", Boolean.class);
     public static final DataTicket<Integer> COLLAR_TICKET =
             DataTicket.create("more_pups_collar", Integer.class);
+    public static final DataTicket<Boolean> BABY_TICKET =
+            DataTicket.create("more_pups_baby", Boolean.class);
 
     private static final EntityDataAccessor<Integer> DATA_BREED =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.INT);
@@ -181,6 +183,28 @@ public class PupEntity extends Wolf implements GeoEntity {
     @Override
     public int getAmbientSoundInterval() {
         return 400;
+    }
+
+    @Override
+    public @Nullable PupEntity getBreedOffspring(ServerLevel level, AgeableMob partner) {
+        PupEntity baby = ModEntityTypes.PUP.create(level, EntitySpawnReason.BREEDING);
+
+        if (baby == null) {
+            return null;
+        }
+
+        if (partner instanceof PupEntity partnerPup) {
+            baby.setBreed(this.random.nextBoolean() ? this.getBreed() : partnerPup.getBreed());
+        } else {
+            baby.setBreed(this.getBreed());
+        }
+
+        if (this.isTame()) {
+            baby.setOwnerReference(this.getOwnerReference());
+            baby.setTame(true, true);
+        }
+
+        return baby;
     }
 
     private <E extends PupEntity> PlayState walkAnimController(AnimationTest<E> animTest) {
