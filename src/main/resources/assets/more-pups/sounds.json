@@ -1,0 +1,29 @@
+{
+  "dachshund_bark": {
+    "sounds": [{"name": "more-pups:dachshund_bark", "stream": false}]
+  },
+  "dachshund_hurt": {
+    "sounds": [{"name": "more-pups:dachshund_hurt", "stream": false}]
+  },
+  "dachshund_death": {
+    "sounds": [{"name": "more-pups:dachshund_death", "stream": false}]
+  },
+  "pug_bark": {
+    "sounds": [{"name": "more-pups:pug_bark", "stream": false}]
+  },
+  "pug_hurt": {
+    "sounds": [{"name": "more-pups:pug_hurt", "stream": false}]
+  },
+  "pug_death": {
+    "sounds": [{"name": "more-pups:pug_death", "stream": false}]
+  },
+  "labrador_bark": {
+    "sounds": [{"name": "more-pups:labrador_bark", "stream": false}]
+  },
+  "labrador_hurt": {
+    "sounds": [{"name": "more-pups:labrador_hurt", "stream": false}]
+  },
+  "labrador_death": {
+    "sounds": [{"name": "more-pups:labrador_death", "stream": false}]
+  }
+}

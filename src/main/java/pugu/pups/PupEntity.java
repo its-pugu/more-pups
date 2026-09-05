@@ -13,6 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
@@ -121,6 +123,33 @@ public class PupEntity extends Wolf implements GeoEntity {
         controllers.add(new AnimationController<PupEntity>("HeadTilt", 5, this::headTiltAnimController));
         controllers.add(new AnimationController<PupEntity>("Sitting", 0, this::sitAnimController));
         controllers.add(new AnimationController<PupEntity>("Sleeping", 0, this::sleepAnimController));
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return switch (this.getBreed()) {
+            case DACHSHUND -> ModSounds.DACHSHUND_BARK;
+            case PUG -> ModSounds.PUG_BARK;
+            case LABRADOR -> ModSounds.LABRADOR_BARK;
+        };
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return switch (this.getBreed()) {
+            case DACHSHUND -> ModSounds.DACHSHUND_HURT;
+            case PUG -> ModSounds.PUG_HURT;
+            case LABRADOR -> ModSounds.LABRADOR_HURT;
+        };
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return switch (this.getBreed()) {
+            case DACHSHUND -> ModSounds.DACHSHUND_DEATH;
+            case PUG -> ModSounds.PUG_DEATH;
+            case LABRADOR -> ModSounds.LABRADOR_DEATH;
+        };
     }
 
     private <E extends PupEntity> PlayState walkAnimController(AnimationTest<E> animTest) {

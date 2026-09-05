@@ -10,6 +10,8 @@ scmVersion {
 	}
 	snapshotCreator { version, position -> '' }
 	versionCreator('simple')
+
+	localOnly.set(true)
 }
 
 version = scmVersion.version

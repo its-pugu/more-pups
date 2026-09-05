@@ -28,6 +28,7 @@ public class MorePups implements ModInitializer {
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
 		ModEntityTypes.initialize();
+		ModSounds.initialize();
 		ModCreativeTabs.initialize();
 		ModDataComponents.initialize();
 		ModRecipes.initialize();
