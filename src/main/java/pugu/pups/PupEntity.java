@@ -16,14 +16,18 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
@@ -43,26 +47,16 @@ public class PupEntity extends Wolf implements GeoEntity {
     public static final DataTicket<Boolean> BABY_TICKET =
             DataTicket.create("more_pups_baby", Boolean.class);
 
+    private static final EntityDimensions DACHSHUND_DIMENSIONS = EntityDimensions.scalable(0.5F, 0.5F);
+    private static final EntityDimensions PUG_DIMENSIONS = EntityDimensions.scalable(0.6F, 0.6F);
+    private static final EntityDimensions LABRADOR_DIMENSIONS = EntityDimensions.scalable(0.8F, 0.85F);
+
     private static final EntityDataAccessor<Integer> DATA_BREED =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<ItemStack> DATA_CARRIED_BALL =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.ITEM_STACK);
     private static final EntityDataAccessor<Boolean> DATA_SLEEPING =
             SynchedEntityData.defineId(PupEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDimensions DACHSHUND_DIMENSIONS = EntityDimensions.scalable(0.5F, 0.5F);
-    private static final EntityDimensions PUG_DIMENSIONS = EntityDimensions.scalable(0.6F, 0.6F);
-    private static final EntityDimensions LABRADOR_DIMENSIONS = EntityDimensions.scalable(0.8F, 0.85F);
-
-    @Override
-    public EntityDimensions getDefaultDimensions(Pose pose) {
-        EntityDimensions dimensions = switch (this.getBreed()) {
-            case DACHSHUND -> DACHSHUND_DIMENSIONS;
-            case PUG -> PUG_DIMENSIONS;
-            case LABRADOR -> LABRADOR_DIMENSIONS;
-        };
-
-        return this.isBaby() ? dimensions.scale(0.5F) : dimensions;
-    }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -108,15 +102,6 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     @Override
-    public Component getName() {
-        if (this.hasCustomName()) {
-            return super.getName();
-        }
-
-        return Component.translatable("entity." + MorePups.MOD_ID + ".pup." + this.getBreed().getSerializedName());
-    }
-
-    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (DATA_BREED.equals(key)) {
             this.refreshDimensions();
@@ -126,15 +111,23 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        super.addAdditionalSaveData(output);
-        output.store("breed", DogBreed.CODEC, this.getBreed());
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        EntityDimensions dimensions = switch (this.getBreed()) {
+            case DACHSHUND -> DACHSHUND_DIMENSIONS;
+            case PUG -> PUG_DIMENSIONS;
+            case LABRADOR -> LABRADOR_DIMENSIONS;
+        };
+
+        return this.isBaby() ? dimensions.scale(0.5F) : dimensions;
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        super.readAdditionalSaveData(input);
-        this.setBreed(input.read("breed", DogBreed.CODEC).orElse(DogBreed.DACHSHUND));
+    public Component getName() {
+        if (this.hasCustomName()) {
+            return super.getName();
+        }
+
+        return Component.translatable("entity." + MorePups.MOD_ID + ".pup." + this.getBreed().getSerializedName());
     }
 
     @Override
@@ -144,19 +137,25 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     @Override
-    protected void registerGoals() {
-        super.registerGoals();
-        this.goalSelector.addGoal(4, new ComeToOwnerWithBallGoal(this));
-        this.goalSelector.addGoal(3, new FetchBallGoal(this));
-        this.goalSelector.addGoal(2, new ReturnBallToOwnerGoal(this));
-    }
+    public @Nullable PupEntity getBreedOffspring(ServerLevel level, AgeableMob partner) {
+        PupEntity baby = ModEntityTypes.PUP.create(level, EntitySpawnReason.BREEDING);
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<PupEntity>("Walking", 5, this::walkAnimController));
-        controllers.add(new AnimationController<PupEntity>("HeadTilt", 5, this::headTiltAnimController));
-        controllers.add(new AnimationController<PupEntity>("Sitting", 0, this::sitAnimController));
-        controllers.add(new AnimationController<PupEntity>("Sleeping", 0, this::sleepAnimController));
+        if (baby == null) {
+            return null;
+        }
+
+        if (partner instanceof PupEntity partnerPup) {
+            baby.setBreed(this.random.nextBoolean() ? this.getBreed() : partnerPup.getBreed());
+        } else {
+            baby.setBreed(this.getBreed());
+        }
+
+        if (this.isTame()) {
+            baby.setOwnerReference(this.getOwnerReference());
+            baby.setTame(true, true);
+        }
+
+        return baby;
     }
 
     @Override
@@ -192,25 +191,31 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     @Override
-    public @Nullable PupEntity getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        PupEntity baby = ModEntityTypes.PUP.create(level, EntitySpawnReason.BREEDING);
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.store("breed", DogBreed.CODEC, this.getBreed());
+    }
 
-        if (baby == null) {
-            return null;
-        }
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        this.setBreed(input.read("breed", DogBreed.CODEC).orElse(DogBreed.DACHSHUND));
+    }
 
-        if (partner instanceof PupEntity partnerPup) {
-            baby.setBreed(this.random.nextBoolean() ? this.getBreed() : partnerPup.getBreed());
-        } else {
-            baby.setBreed(this.getBreed());
-        }
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(4, new ComeToOwnerWithBallGoal(this));
+        this.goalSelector.addGoal(3, new FetchBallGoal(this));
+        this.goalSelector.addGoal(2, new ReturnBallToOwnerGoal(this));
+    }
 
-        if (this.isTame()) {
-            baby.setOwnerReference(this.getOwnerReference());
-            baby.setTame(true, true);
-        }
-
-        return baby;
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<PupEntity>("Walking", 5, this::walkAnimController));
+        controllers.add(new AnimationController<PupEntity>("HeadTilt", 5, this::headTiltAnimController));
+        controllers.add(new AnimationController<PupEntity>("Sitting", 0, this::sitAnimController));
+        controllers.add(new AnimationController<PupEntity>("Sleeping", 0, this::sleepAnimController));
     }
 
     private <E extends PupEntity> PlayState walkAnimController(AnimationTest<E> animTest) {
@@ -236,6 +241,11 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     private <E extends PupEntity> PlayState headTiltAnimController(AnimationTest<E> animTest) {
+        if (animTest.animatable().isSleeping()) {
+            animTest.controller().reset();
+            return PlayState.STOP;
+        }
+
         Player nearestPlayer = animTest.animatable().level().getNearestPlayer(animTest.animatable(), 6.0);
 
         if (nearestPlayer != null && isFood(nearestPlayer.getMainHandItem())) {
