@@ -2,6 +2,7 @@ package pugu.pups;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -49,9 +50,16 @@ public class MorePups implements ModInitializer {
 					wolf.clearHome();
 				} else if (payload.state() == DogBehaviorState.GUARD) {
 					wolf.setHomeTo(wolf.blockPosition(), wolf.getAttachedOrElse(ModAttachments.GUARD_RADIUS, 8));
+				} else if (payload.state() == DogBehaviorState.RETURN_TO_BED) {
+					BlockPos bed = wolf.getAttached(ModAttachments.DOG_BED_POS);
+
+					if (bed != null) {
+						wolf.setHomeTo(bed, wolf.getAttachedOrElse(ModAttachments.RELAX_RADIUS, 16));
+					}
 				} else {
 					wolf.setHomeTo(wolf.blockPosition(), wolf.getAttachedOrElse(ModAttachments.RELAX_RADIUS, 16));
 				}
+
 			}
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
@@ -62,6 +70,7 @@ public class MorePups implements ModInitializer {
 				wolf.getGoalSelector().addGoal(6, new GuardGoal(wolf));
 				wolf.getGoalSelector().addGoal(5, new SleepInBedGoal(wolf));
 				wolf.getGoalSelector().addGoal(6, new RelaxGoal(wolf));
+				wolf.getGoalSelector().addGoal(6, new ReturnToBedGoal(wolf));
 			}
 		});
 	}

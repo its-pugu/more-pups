@@ -1,11 +1,14 @@
 package pugu.pups;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 
 public class DogStateScreen extends Screen {
     private static final int FOLLOW_MIN = 2;
@@ -14,25 +17,33 @@ public class DogStateScreen extends Screen {
     private static final int RADIUS_MAX = 32;
 
     private final int dogEntityId;
+    private final boolean hasBed;
 
-    private DogBehaviorState selectedState = DogBehaviorState.FOLLOW;
-    private int followDistance = 3;
-    private int guardRadius = 8;
-    private int relaxRadius = 16;
+    private DogBehaviorState selectedState;
+    private int followDistance;
+    private int guardRadius;
+    private int relaxRadius;
 
     private Button followButton;
     private Button guardButton;
     private Button relaxButton;
+    private Button bedButton;
 
-    public DogStateScreen(int dogEntityId) {
+    public DogStateScreen(Wolf wolf) {
         super(Component.literal("Dog Behavior"));
-        this.dogEntityId = dogEntityId;
+
+        this.dogEntityId = wolf.getId();
+        this.hasBed = wolf.getAttached(ModAttachments.DOG_BED_POS) != null;
+        this.selectedState = wolf.getAttachedOrElse(ModAttachments.DOG_STATE, DogBehaviorState.FOLLOW);
+        this.followDistance = wolf.getAttachedOrElse(ModAttachments.FOLLOW_DISTANCE, 3);
+        this.guardRadius = wolf.getAttachedOrElse(ModAttachments.GUARD_RADIUS, 8);
+        this.relaxRadius = wolf.getAttachedOrElse(ModAttachments.RELAX_RADIUS, 16);
     }
 
     @Override
     protected void init() {
         int centerX = this.width / 2;
-        int startY = this.height / 2 - 70;
+        int startY = this.height / 2 - 85;
 
         this.followButton = this.addRenderableWidget(Button.builder(Component.literal("Follow"), button -> this.select(DogBehaviorState.FOLLOW))
                 .bounds(centerX - 50, startY, 100, 20).build());
@@ -43,17 +54,25 @@ public class DogStateScreen extends Screen {
         this.relaxButton = this.addRenderableWidget(Button.builder(Component.literal("Relax"), button -> this.select(DogBehaviorState.RELAX))
                 .bounds(centerX - 50, startY + 50, 100, 20).build());
 
-        this.addRenderableWidget(new IntSlider(centerX - 75, startY + 85, "Follow distance",
+        this.bedButton = this.addRenderableWidget(Button.builder(Component.literal("Return to Bed"), button -> this.select(DogBehaviorState.RETURN_TO_BED))
+                .bounds(centerX - 50, startY + 75, 100, 20).build());
+
+        if (!this.hasBed) {
+            this.bedButton.setTooltip(Tooltip.create(
+                    Component.literal("Dog has not claimed a bed.").withStyle(ChatFormatting.RED)));
+        }
+
+        this.addRenderableWidget(new IntSlider(centerX - 75, startY + 110, "Follow distance",
                 this.followDistance, FOLLOW_MIN, FOLLOW_MAX, value -> this.followDistance = value));
 
-        this.addRenderableWidget(new IntSlider(centerX - 75, startY + 110, "Guard radius",
+        this.addRenderableWidget(new IntSlider(centerX - 75, startY + 135, "Guard radius",
                 this.guardRadius, RADIUS_MIN, RADIUS_MAX, value -> this.guardRadius = value));
 
-        this.addRenderableWidget(new IntSlider(centerX - 75, startY + 135, "Relax radius",
+        this.addRenderableWidget(new IntSlider(centerX - 75, startY + 160, "Relax radius",
                 this.relaxRadius, RADIUS_MIN, RADIUS_MAX, value -> this.relaxRadius = value));
 
         this.addRenderableWidget(Button.builder(Component.literal("Done"), button -> this.apply())
-                .bounds(centerX - 50, startY + 165, 100, 20).build());
+                .bounds(centerX - 50, startY + 190, 100, 20).build());
 
         this.refreshButtons();
     }
@@ -67,6 +86,7 @@ public class DogStateScreen extends Screen {
         this.followButton.active = this.selectedState != DogBehaviorState.FOLLOW;
         this.guardButton.active = this.selectedState != DogBehaviorState.GUARD;
         this.relaxButton.active = this.selectedState != DogBehaviorState.RELAX;
+        this.bedButton.active = this.hasBed && this.selectedState != DogBehaviorState.RETURN_TO_BED;
     }
 
     private void apply() {

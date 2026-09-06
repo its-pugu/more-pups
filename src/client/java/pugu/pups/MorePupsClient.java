@@ -46,7 +46,7 @@ public class MorePupsClient implements ClientModInitializer {
 
             if (player.isSecondaryUseActive() && entity instanceof Wolf wolf
                     && wolf.isTame() && wolf.isOwnedBy(player)) {
-                Minecraft.getInstance().gui.setScreen(new DogStateScreen(wolf.getId()));
+                Minecraft.getInstance().gui.setScreen(new DogStateScreen(wolf));
                 return InteractionResult.SUCCESS;
             }
 
