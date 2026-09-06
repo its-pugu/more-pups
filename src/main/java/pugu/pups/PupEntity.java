@@ -138,6 +138,12 @@ public class PupEntity extends Wolf implements GeoEntity {
     }
 
     @Override
+    public void tame(Player player) {
+        super.tame(player);
+        DogTracking.record(player, this);
+    }
+
+    @Override
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(4, new ComeToOwnerWithBallGoal(this));
