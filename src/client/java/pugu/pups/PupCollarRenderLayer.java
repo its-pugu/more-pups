@@ -27,8 +27,7 @@ public class PupCollarRenderLayer extends TextureLayerGeoLayer<PupEntity, Void, 
     @Override
     protected Identifier getTextureResource(LivingEntityRenderState renderState) {
         return Identifier.fromNamespaceAndPath(MorePups.MOD_ID,
-                "textures/entity/" + renderState.getOrDefaultGeckolibData(PupEntity.BREED_TICKET, DogBreed.DACHSHUND)
-                        .getSerializedName() + "_collar.png");
+                PupGeoModel.texturePrefix(renderState) + "_collar.png");
     }
 
     @Override

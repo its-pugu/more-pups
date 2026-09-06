@@ -18,8 +18,12 @@ public class PupGeoModel extends GeoModel<PupEntity> {
                         + (animatable.isBaby() ? "_baby" : ""));
     }
 
-    private String suffix(GeoRenderState renderState) {
+    public static String suffix(GeoRenderState renderState) {
         return renderState.getOrDefaultGeckolibData(PupEntity.BABY_TICKET, false) ? "_baby" : "";
+    }
+
+    public static String texturePrefix(GeoRenderState renderState) {
+        return "textures/entity/" + breedName(renderState) + suffix(renderState);
     }
 
     @Override
@@ -28,7 +32,7 @@ public class PupGeoModel extends GeoModel<PupEntity> {
                 "textures/entity/" + breedName(renderState) + suffix(renderState) + ".png");
     }
 
-    private String breedName(GeoRenderState renderState) {
+    public static String breedName(GeoRenderState renderState) {
         return renderState.getOrDefaultGeckolibData(PupEntity.BREED_TICKET, DogBreed.DACHSHUND)
                 .getSerializedName();
     }

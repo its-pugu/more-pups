@@ -19,14 +19,15 @@ public class PupEyesRenderLayer extends TextureLayerGeoLayer<PupEntity, Void, Li
     @Override
     protected Identifier getTextureResource(LivingEntityRenderState renderState) {
         return Identifier.fromNamespaceAndPath(MorePups.MOD_ID,
-                "textures/entity/" + renderState.getOrDefaultGeckolibData(PupEntity.BREED_TICKET, DogBreed.DACHSHUND)
-                        .getSerializedName() + "_eyes_closed.png");
+                PupGeoModel.texturePrefix(renderState) + "_eyes_closed.png");
     }
 
     @Override
     public void addRenderData(PupEntity animatable, Void relatedObject, LivingEntityRenderState renderState, float partialTick) {
         renderState.addGeckolibData(PupEntity.SLEEPING_TICKET, animatable.isSleeping());
     }
+
+
 
     @Override
     protected @Nullable RenderType getRenderType(LivingEntityRenderState renderState) {
