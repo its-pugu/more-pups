@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 
+import java.util.List;
+
 public class ModAttachments {
     public static final AttachmentType<DogBehaviorState> DOG_STATE = AttachmentRegistry.create(
             MorePups.id("dog_state"),
@@ -41,6 +43,11 @@ public class ModAttachments {
             builder -> builder
                     .persistent(BlockPos.CODEC)
                     .syncWith(BlockPos.STREAM_CODEC, AttachmentSyncPredicate.all()));
+    public static final AttachmentType<List<DogRecord>> OWNED_DOGS = AttachmentRegistry.create(
+            MorePups.id("owned_dogs"),
+            builder -> builder
+                    .initializer(List::of)
+                    .persistent(DogRecord.LIST_CODEC));
 
     public static void initialize() {
     }

@@ -1,6 +1,7 @@
 package pugu.pups;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.client.Minecraft;
@@ -38,6 +39,9 @@ public class MorePupsClient implements ClientModInitializer {
                 return ARGB.opaque(DyeColor.WHITE.getTextureDiffuseColor());
             }
         }), ModBlocks.DOG_BED);
+
+        ClientPlayNetworking.registerGlobalReceiver(DogListPayload.TYPE, (payload, context) ->
+                Minecraft.getInstance().gui.setScreen(new DogWhistleScreen(payload.dogs())));
 
         UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
             if (!level.isClientSide()) {

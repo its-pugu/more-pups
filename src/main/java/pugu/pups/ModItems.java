@@ -39,6 +39,11 @@ public class ModItems {
                     .component(DataComponents.ENTITY_DATA,
                             TypedEntityData.of(ModEntityTypes.PUP, breedTag(DogBreed.LABRADOR))));
 
+    public static final ResourceKey<Item> DOG_WHISTLE_ID = ModItemIds.create("dog_whistle");
+    public static final Item DOG_WHISTLE = register(DOG_WHISTLE_ID, DogWhistleItem::new,
+            new Item.Properties().stacksTo(1));
+
+
     public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
         Item item = itemFactory.apply(settings.setId(itemKey));
         Registry.register(BuiltInRegistries.ITEM, itemKey, item);

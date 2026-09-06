@@ -2,17 +2,22 @@ package pugu.pups;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+
+import java.util.List;
 
 public class MorePups implements ModInitializer {
 	public static final String MOD_ID = "more-pups";
@@ -36,6 +41,20 @@ public class MorePups implements ModInitializer {
 		ModAttachments.initialize();
 		DogInteractionHandler.initialize();
 		PayloadTypeRegistry.serverboundPlay().register(SetDogStatePayload.TYPE, SetDogStatePayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(DogListPayload.TYPE, DogListPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(SummonDogPayload.TYPE, SummonDogPayload.CODEC);
+
+		ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
+			if (entity instanceof Wolf wolf) {
+				DogTracking.refresh(wolf);
+			}
+		});
+
+		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+			if (entity instanceof Wolf wolf && wolf.getOwner() instanceof Player owner) {
+				DogTracking.forget(owner, wolf.getUUID());
+			}
+		});
 
 		ServerPlayNetworking.registerGlobalReceiver(SetDogStatePayload.TYPE, (payload, context) -> {
 			if (context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf
@@ -62,6 +81,25 @@ public class MorePups implements ModInitializer {
 
 			}
 		});
+
+		ServerPlayNetworking.registerGlobalReceiver(SummonDogPayload.TYPE, (payload, context) -> {
+			ServerPlayer player = context.player();
+			DogRecord record = null;
+
+			for (DogRecord candidate : player.getAttachedOrElse(ModAttachments.OWNED_DOGS, List.of())) {
+				if (candidate.dogId().equals(payload.dogId())) {
+					record = candidate;
+					break;
+				}
+			}
+
+			if (record == null || !record.dimension().equals(player.level().dimension())) {
+				return;
+			}
+
+			DogSummoning.summon(player, record);
+		});
+
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if (entity instanceof Wolf wolf) {
 				wolf.removeAllGoals(goal -> goal instanceof FollowOwnerGoal || goal instanceof WaterAvoidingRandomStrollGoal);
