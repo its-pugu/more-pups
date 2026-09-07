@@ -82,6 +82,27 @@ unmodified and credited with a link back here. No need to ask first.
   - Add more and better animations
   - Add a "Tamagotchi" style stats system
 
+## Crafting Recipes
+
+<details>
+<summary><b></b></summary>
+Dog Bed
+
+![Dog bed recipe](docs/images/bed_recipe.png)
+
+Ball
+
+![Ball Recipe](docs/images/ball_recipe.png)
+
+Dog Whistle
+
+![Dog Whistle Recipe](docs/images/whistle_recipe.png)
+
+Dog Treat
+
+![Dog Treat Recipe](docs/images/treat_recipe.png)
+</details>
+
 ## Licence
 
 This project is licensed in two parts:
