@@ -31,6 +31,7 @@
 					"name": "earR",
 					"parent": "head",
 					"pivot": [-2.5, 7.5, -7],
+					"rotation": [0, 0, 5],
 					"cubes": [
 						{"origin": [-4, 4.5, -8], "size": [1, 4, 2], "uv": [16, 13]}
 					]
@@ -39,6 +40,7 @@
 					"name": "earL",
 					"parent": "head",
 					"pivot": [2.5, 7.5, -7],
+					"rotation": [0, 0, -5],
 					"cubes": [
 						{"origin": [3, 4.5, -8], "size": [1, 4, 2], "uv": [16, 13]}
 					]
