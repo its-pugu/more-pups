@@ -9,15 +9,17 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public record DogRecord(UUID dogId, ResourceKey<Level> dimension, BlockPos lastKnownPos, DogBreed breed, String name) {
+public record DogRecord(UUID dogId, ResourceKey<Level> dimension, BlockPos lastKnownPos,
+                        Optional<DogBreed> breed, String name) {
 
     public static final Codec<DogRecord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UUIDUtil.CODEC.fieldOf("dog_id").forGetter(DogRecord::dogId),
             ResourceKey.codec(Registries.DIMENSION).fieldOf("dimension").forGetter(DogRecord::dimension),
             BlockPos.CODEC.fieldOf("last_known_pos").forGetter(DogRecord::lastKnownPos),
-            DogBreed.CODEC.fieldOf("breed").forGetter(DogRecord::breed),
+            DogBreed.CODEC.optionalFieldOf("breed").forGetter(DogRecord::breed),
             Codec.STRING.fieldOf("name").forGetter(DogRecord::name)
     ).apply(instance, DogRecord::new));
 

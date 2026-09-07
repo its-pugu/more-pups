@@ -5,6 +5,7 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class DogTracking {
@@ -23,11 +24,8 @@ public class DogTracking {
                 dog.getUUID(),
                 dog.level().dimension(),
                 dog.blockPosition(),
-                dog instanceof PupEntity pup ? pup.getBreed() : DogBreed.DACHSHUND,
+                dog instanceof PupEntity pup ? Optional.of(pup.getBreed()) : Optional.empty(),
                 dog.hasCustomName() ? dog.getCustomName().getString() : ""));
-
-        MorePups.LOGGER.info("Tracking dog {} for {} at {} in {}",
-                dog.getUUID(), owner.getName().getString(), dog.blockPosition(), dog.level().dimension().identifier());
 
         owner.setAttached(ModAttachments.OWNED_DOGS, List.copyOf(updated));
     }
@@ -41,8 +39,6 @@ public class DogTracking {
                 updated.add(existing);
             }
         }
-
-        MorePups.LOGGER.info("Forgetting dog {} for {}", dogId, owner.getName().getString());
 
         owner.setAttached(ModAttachments.OWNED_DOGS, List.copyOf(updated));
     }

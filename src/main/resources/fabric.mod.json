@@ -8,11 +8,11 @@
 		"Pugu_"
 	],
 	"contact": {
-		"homepage": "https://github.com/YourUsername/more-pups",
-		"sources": "https://github.com/YourUsername/more-pups",
-		"issues": "https://github.com/YourUsername/more-pups/issues"
+		"homepage": "https://github.com/its-pugu/more-pups",
+		"sources": "https://github.com/its-pugu/more-pups",
+		"issues": "https://github.com/its-pugu/more-pups/issues"
 	},
-	"license": "MIT",
+	"license": "MIT (code) / ARR (assets)",
 	"icon": "assets/more-pups/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -26,14 +26,11 @@
 			"pugu.pups.MorePupsDataGenerator"
 		]
 	},
-	"mixins": [
-		"more-pups.mixins.json"
-	],
 	"depends": {
 		"fabricloader": ">=0.19.3",
 		"minecraft": "~26.2",
 		"java": ">=25",
 		"fabric-api": "*",
-		"geckolib": "*"
+		"geckolib": ">=5.5.4"
 	}
 }

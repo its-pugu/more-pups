@@ -9,8 +9,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 
 import java.util.List;
 
-public class DachshundBallRenderLayer extends BlockAndItemGeoLayer<PupEntity, Void, LivingEntityRenderState> {
-    public DachshundBallRenderLayer(EntityRendererProvider.Context context, GeoRenderer<PupEntity, Void, LivingEntityRenderState> renderer) {
+public class PupBallRenderLayer extends BlockAndItemGeoLayer<PupEntity, Void, LivingEntityRenderState> {
+    public PupBallRenderLayer(EntityRendererProvider.Context context, GeoRenderer<PupEntity, Void, LivingEntityRenderState> renderer) {
         super(context, renderer);
     }
 

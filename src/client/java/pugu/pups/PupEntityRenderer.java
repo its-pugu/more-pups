@@ -10,7 +10,7 @@ import net.minecraft.util.Mth;
 public class PupEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntityRenderState> {
     public PupEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new PupGeoModel());
-        withRenderLayer(new DachshundBallRenderLayer(context, this));
+        withRenderLayer(new PupBallRenderLayer(context, this));
         withRenderLayer(new PupEyesRenderLayer(this));
         withRenderLayer(new PupCollarRenderLayer(this));
     }

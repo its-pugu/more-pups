@@ -81,7 +81,11 @@ public class DogWhistleScreen extends Screen {
             return dog.name();
         }
 
-        String breed = dog.breed().getSerializedName();
+        if (dog.breed().isEmpty()) {
+            return "Wolf";
+        }
+
+        String breed = dog.breed().get().getSerializedName();
         return Character.toUpperCase(breed.charAt(0)) + breed.substring(1);
     }
 

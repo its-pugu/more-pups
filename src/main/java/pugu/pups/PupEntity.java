@@ -15,16 +15,14 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
@@ -35,6 +33,7 @@ public class PupEntity extends Wolf implements GeoEntity {
     private static final RawAnimation HEAD_TILT_ANIM = RawAnimation.begin().thenPlayAndHold("head_tilt");
     private static final RawAnimation HEAD_NEUTRAL_ANIM = RawAnimation.begin().thenPlayAndHold("head_neutral");
     private static final RawAnimation SLEEP_ANIM = RawAnimation.begin().thenPlayAndHold("sleep");
+
 
     public static final DataTicket<Boolean> SLEEPING_TICKET =
             DataTicket.create("more_pups_sleeping", Boolean.class);
@@ -62,6 +61,18 @@ public class PupEntity extends Wolf implements GeoEntity {
 
     public PupEntity(EntityType<? extends Wolf> entityType, Level world) {
         super(entityType, world);
+    }
+
+    @Override
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+                                                  EntitySpawnReason spawnReason, @Nullable SpawnGroupData groupData) {
+        int villageX = this.blockPosition().getX() >> 7;
+        int villageZ = this.blockPosition().getZ() >> 7;
+        int hash = villageX * 31 + villageZ * 17;
+
+        this.setBreed(DogBreed.values()[Math.floorMod(hash, DogBreed.values().length)]);
+
+        return super.finalizeSpawn(level, difficulty, spawnReason, groupData);
     }
 
     @Override
