@@ -51,6 +51,7 @@ public class MorePups implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(SetDogStatePayload.TYPE, SetDogStatePayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(DogListPayload.TYPE, DogListPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SummonDogPayload.TYPE, SummonDogPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(ForgetDogBedPayload.TYPE, ForgetDogBedPayload.CODEC);
 
 
 		ServerTickEvents.END_LEVEL_TICK.register(VillageDogSpawner::tick);
@@ -109,6 +110,27 @@ public class MorePups implements ModInitializer {
 			}
 
 			DogSummoning.summon(player, record);
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(ForgetDogBedPayload.TYPE, (payload, context) -> {
+			if (context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf
+					&& wolf.isOwnedBy(context.player())) {
+
+				BlockPos bedPos = wolf.getAttached(ModAttachments.DOG_BED_POS);
+
+				if (bedPos != null
+						&& wolf.level().getBlockEntity(bedPos) instanceof DogBedBlockEntity bed
+						&& bed.isClaimedBy(wolf.getUUID())) {
+					bed.clearClaim();
+				}
+
+				wolf.removeAttached(ModAttachments.DOG_BED_POS);
+
+				if (wolf.getAttachedOrElse(ModAttachments.DOG_STATE, DogBehaviorState.FOLLOW) == DogBehaviorState.RETURN_TO_BED) {
+					wolf.setAttached(ModAttachments.DOG_STATE, DogBehaviorState.FOLLOW);
+					wolf.clearHome();
+				}
+			}
 		});
 
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
