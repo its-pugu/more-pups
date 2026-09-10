@@ -1,5 +1,6 @@
 package pugu.pups;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 
@@ -25,7 +26,10 @@ public class DogTracking {
                 dog.level().dimension(),
                 dog.blockPosition(),
                 dog instanceof PupEntity pup ? Optional.of(pup.getBreed()) : Optional.empty(),
-                dog.hasCustomName() ? dog.getCustomName().getString() : ""));
+                dog.hasCustomName() ? dog.getCustomName().getString() : "",
+                dog.getCollarColor(),
+                Optional.ofNullable(dog.get(DataComponents.WOLF_VARIANT))
+                        .flatMap(holder -> holder.unwrapKey())));
 
         owner.setAttached(ModAttachments.OWNED_DOGS, List.copyOf(updated));
     }
