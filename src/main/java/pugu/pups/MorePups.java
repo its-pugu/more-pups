@@ -1,29 +1,25 @@
 package pugu.pups;
 
 import net.fabricmc.api.ModInitializer;
-
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
-import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBiomeTags;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacementTypes;
-import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.animal.wolf.Wolf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.levelgen.Heightmap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.player.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -55,6 +51,7 @@ public class MorePups implements ModInitializer {
 
 
 		ServerTickEvents.END_LEVEL_TICK.register(VillageDogSpawner::tick);
+		ServerTickEvents.END_LEVEL_TICK.register(DogStats::tick);
 
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
 			if (entity instanceof Wolf wolf) {
@@ -130,6 +127,32 @@ public class MorePups implements ModInitializer {
 					wolf.setAttached(ModAttachments.DOG_STATE, DogBehaviorState.FOLLOW);
 					wolf.clearHome();
 				}
+			}
+		});
+
+		PayloadTypeRegistry.serverboundPlay().register(PetDogPayload.TYPE, PetDogPayload.CODEC);
+
+		ServerPlayNetworking.registerGlobalReceiver(PetDogPayload.TYPE, (payload, context) -> {
+			if (context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf
+					&& wolf.isOwnedBy(context.player())
+					&& wolf.distanceToSqr(context.player()) < 25.0D) {
+
+				ServerLevel level = context.player().level();
+
+				level.sendParticles(ParticleTypes.HEART,
+						wolf.getX(), wolf.getY() + wolf.getBbHeight(), wolf.getZ(),
+						3, 0.3D, 0.3D, 0.3D, 0.0D);
+
+				SoundEvent sound = wolf instanceof PupEntity pup
+						? switch (pup.getBreed()) {
+					case DACHSHUND -> ModSounds.DACHSHUND_BARK;
+					case PUG -> ModSounds.PUG_BARK;
+					case LABRADOR -> ModSounds.LABRADOR_BARK;
+				}
+						: ModSounds.DACHSHUND_BARK;
+
+				level.playSound(null, wolf.blockPosition(), sound,
+						SoundSource.NEUTRAL, 0.6F, 1.2F);
 			}
 		});
 

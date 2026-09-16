@@ -49,6 +49,13 @@ public class ModAttachments {
                     .initializer(List::of)
                     .persistent(DogRecord.LIST_CODEC));
 
+    public static final AttachmentType<Integer> FOOD = AttachmentRegistry.create(
+            MorePups.id("food"),
+            builder -> builder
+                    .initializer(() -> 100)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
     public static void initialize() {
     }
 }

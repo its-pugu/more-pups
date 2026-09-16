@@ -1,0 +1,27 @@
+{
+  "parent": "more-pups:mans_best_friend",
+  "display": {
+    "icon": {
+      "id": "more-pups:ball"
+    },
+    "title": {
+      "translate": "advancements.more-pups.very_fetching.title"
+    },
+    "description": {
+      "translate": "advancements.more-pups.very_fetching.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "crafted_ball": {
+      "trigger": "minecraft:recipe_crafted",
+      "conditions": {
+        "recipe_id": "more-pups:ball"
+      }
+    }
+  },
+  "requirements": [["crafted_ball"]]
+}

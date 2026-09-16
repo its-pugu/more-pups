@@ -10,5 +10,17 @@
   "item.more-pups.dachshund_spawn_egg": "Dachshund Spawn Egg",
   "item.more-pups.pug_spawn_egg": "Pug Spawn Egg",
   "item.more-pups.labrador_spawn_egg": "Labrador Spawn Egg",
-  "item.more-pups.dog_whistle": "Dog Whistle"
+  "item.more-pups.dog_whistle": "Dog Whistle",
+  "advancements.more-pups.mans_best_friend.title": "Man's Best Friend",
+  "advancements.more-pups.mans_best_friend.description": "Tame your first More Pups dog",
+  "advancements.more-pups.the_lazy_brown_dog.title": "The Lazy Brown Dog",
+  "advancements.more-pups.the_lazy_brown_dog.description": "Make a bed for your dog",
+  "advancements.more-pups.demand_some_attention.title": "Demand Some Attention",
+  "advancements.more-pups.demand_some_attention.description": "Craft a Dog Whistle",
+  "advancements.more-pups.very_fetching.title": "Very Fetching",
+  "advancements.more-pups.very_fetching.description": "Craft a Ball",
+  "advancements.more-pups.gotta_tame_em_all.title": "Gotta Tame 'Em All",
+  "advancements.more-pups.gotta_tame_em_all.description": "Tame every breed of dog",
+  "key.more-pups.pet_dog": "Pet Dog",
+  "key.categories.more-pups": "More Pups"
 }

@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "more-pups:dog_treat"
+    },
+    "title": {
+      "translate": "advancements.more-pups.mans_best_friend.title"
+    },
+    "description": {
+      "translate": "advancements.more-pups.mans_best_friend.description"
+    },
+    "frame": "task",
+    "background": "more-pups:textures/block/dog_bed_top.png",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "tamed_dog": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "entity_type": "more-pups:pup"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [["tamed_dog"]]
+}

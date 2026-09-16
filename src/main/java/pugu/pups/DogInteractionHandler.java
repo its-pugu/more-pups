@@ -11,6 +11,19 @@ public class DogInteractionHandler {
                 return InteractionResult.PASS;
             }
 
+            if (!level.isClientSide() && wolf.isTame() && wolf.isOwnedBy(player)
+                    && player.getItemInHand(hand).is(ModItems.DOG_TREAT)) {
+                DogStats.feed(wolf, 40);
+            }
+
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "Food: " + wolf.getAttachedOrElse(ModAttachments.FOOD, 100)));
+
+            if (!player.isSecondaryUseActive()) {
+                return InteractionResult.PASS;
+            }
+
+
             if (!player.isSecondaryUseActive()) {
                 return InteractionResult.PASS;
             }

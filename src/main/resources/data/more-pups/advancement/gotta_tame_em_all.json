@@ -1,0 +1,66 @@
+{
+  "parent": "more-pups:mans_best_friend",
+  "display": {
+    "icon": {
+      "id": "more-pups:labrador_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.more-pups.gotta_tame_em_all.title"
+    },
+    "description": {
+      "translate": "advancements.more-pups.gotta_tame_em_all.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "tamed_dachshund": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "entity_type": "more-pups:pup",
+              "nbt": "{breed:\"dachshund\"}"
+            }
+          }
+        ]
+      }
+    },
+    "tamed_pug": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "entity_type": "more-pups:pup",
+              "nbt": "{breed:\"pug\"}"
+            }
+          }
+        ]
+      }
+    },
+    "tamed_labrador": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "entity_type": "more-pups:pup",
+              "nbt": "{breed:\"labrador\"}"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [["tamed_dachshund"], ["tamed_pug"], ["tamed_labrador"]]
+}
