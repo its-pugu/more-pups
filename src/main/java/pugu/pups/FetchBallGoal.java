@@ -68,6 +68,7 @@ public class FetchBallGoal extends Goal {
 
             this.targetBall.discard();
             this.dog.setCarriedBall(carried);
+            DogStats.play(this.dog, 15);
         }
     }
 

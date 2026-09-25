@@ -1,5 +1,6 @@
 package pugu.pups;
 
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -7,10 +8,19 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 
 public class DogStats {
     private static final int INTERVAL_TICKS = 600;
+
     private static final int FOOD_DECAY = 1;
+    private static final int PLAY_DECAY = 1;
+    private static final int SLEEP_DECAY = 1;
+
+    private static final int SLEEP_DECAY_EVERY = 4;
+
     private static final int FOOD_WEIGHT = 50;
+    private static final int PLAY_WEIGHT = 30;
+    private static final int SLEEP_WEIGHT = 20;
 
     private static int timer;
+    private static int sleepCounter;
 
     public static void tick(ServerLevel level) {
         if (--timer > 0) {
@@ -19,24 +29,41 @@ public class DogStats {
 
         timer = INTERVAL_TICKS;
 
+        boolean decaySleep = --sleepCounter <= 0;
+
+        if (decaySleep) {
+            sleepCounter = SLEEP_DECAY_EVERY;
+        }
+
         for (ServerPlayer player : level.players()) {
             for (Wolf dog : level.getEntitiesOfClass(Wolf.class,
                     player.getBoundingBox().inflate(128.0D),
                     candidate -> candidate.isTame() && candidate.isOwnedBy(player))) {
-                decay(dog);
+                decay(dog, decaySleep);
             }
         }
     }
 
-    private static void decay(Wolf dog) {
-        int food = dog.getAttachedOrElse(ModAttachments.FOOD, 100);
-        dog.setAttached(ModAttachments.FOOD, Math.max(0, food - FOOD_DECAY));
+    private static void decay(Wolf dog, boolean decaySleep) {
+        adjust(dog, ModAttachments.FOOD, -FOOD_DECAY);
+        adjust(dog, ModAttachments.PLAY, -PLAY_DECAY);
+
+        if (decaySleep) {
+            adjust(dog, ModAttachments.SLEEP, -SLEEP_DECAY);
+        }
+    }
+
+    private static void adjust(Wolf dog, AttachmentType<Integer> type, int delta) {
+        int current = dog.getAttachedOrElse(type, 100);
+        dog.setAttached(type, Mth.clamp(current + delta, 0, 100));
     }
 
     public static int happiness(Wolf dog) {
         int food = dog.getAttachedOrElse(ModAttachments.FOOD, 100);
+        int play = dog.getAttachedOrElse(ModAttachments.PLAY, 100);
+        int sleep = dog.getAttachedOrElse(ModAttachments.SLEEP, 100);
 
-        return Mth.clamp(food * FOOD_WEIGHT / 100, 0, 100);
+        return (food * FOOD_WEIGHT + play * PLAY_WEIGHT + sleep * SLEEP_WEIGHT) / 100;
     }
 
     public static float xpMultiplier(Wolf dog) {
@@ -44,7 +71,14 @@ public class DogStats {
     }
 
     public static void feed(Wolf dog, int amount) {
-        int food = dog.getAttachedOrElse(ModAttachments.FOOD, 100);
-        dog.setAttached(ModAttachments.FOOD, Math.min(100, food + amount));
+        adjust(dog, ModAttachments.FOOD, amount);
+    }
+
+    public static void play(Wolf dog, int amount) {
+        adjust(dog, ModAttachments.PLAY, amount);
+    }
+
+    public static void rest(Wolf dog, int amount) {
+        adjust(dog, ModAttachments.SLEEP, amount);
     }
 }

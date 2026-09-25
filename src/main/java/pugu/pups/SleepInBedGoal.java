@@ -84,6 +84,8 @@ public class SleepInBedGoal extends Goal {
             this.wolf.snapTo(this.bedPos.getX() + 0.5D, this.bedPos.getY() + 0.4D,
                     this.bedPos.getZ() + 0.5D, this.wolf.getYRot(), 0.0F);
 
+            DogStats.rest(this.wolf, 100);
+
             if (this.wolf instanceof PupEntity pup) {
                 pup.setSleeping(true);
             } else {

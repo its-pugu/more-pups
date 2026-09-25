@@ -15,6 +15,8 @@ public record PetDogPayload(int entityId) implements CustomPacketPayload {
             PetDogPayload::new
     );
 
+
+
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;

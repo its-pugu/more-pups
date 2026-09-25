@@ -168,8 +168,12 @@ public class DogStateScreen extends Screen {
         this.drawBar(graphics, statsLeft, statsTop, 0, "Food",
                 this.dog.getAttachedOrElse(ModAttachments.FOOD, 100), FOOD_FILL_V);
 
-        this.drawBar(graphics, statsLeft, statsTop, 1, "Play", 0, PLAY_FILL_V);
-        this.drawBar(graphics, statsLeft, statsTop, 2, "Sleep", 0, SLEEP_FILL_V);
+        this.drawBar(graphics, statsLeft, statsTop, 1, "Play",
+                this.dog.getAttachedOrElse(ModAttachments.PLAY, 100), PLAY_FILL_V);
+
+        this.drawBar(graphics, statsLeft, statsTop, 2, "Sleep",
+                this.dog.getAttachedOrElse(ModAttachments.SLEEP, 100), SLEEP_FILL_V);
+
         this.drawBar(graphics, statsLeft, statsTop, 3, "XP", 0, XP_FILL_V);
     }
 

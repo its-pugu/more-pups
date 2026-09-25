@@ -137,6 +137,15 @@ public class MorePups implements ModInitializer {
 					&& wolf.isOwnedBy(context.player())
 					&& wolf.distanceToSqr(context.player()) < 25.0D) {
 
+				long now = wolf.level().getGameTime();
+				long last = wolf.getAttachedOrElse(ModAttachments.LAST_PET, 0L);
+
+				if (now - last < 100) {
+					return;
+				}
+
+				wolf.setAttached(ModAttachments.LAST_PET, now);
+
 				ServerLevel level = context.player().level();
 
 				level.sendParticles(ParticleTypes.HEART,
@@ -153,6 +162,8 @@ public class MorePups implements ModInitializer {
 
 				level.playSound(null, wolf.blockPosition(), sound,
 						SoundSource.NEUTRAL, 0.6F, 1.2F);
+
+				DogStats.play(wolf, 3);
 			}
 		});
 

@@ -56,6 +56,23 @@ public class ModAttachments {
                     .persistent(Codec.INT)
                     .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
 
+    public static final AttachmentType<Integer> PLAY = AttachmentRegistry.create(
+            MorePups.id("play"),
+            builder -> builder
+                    .initializer(() -> 100)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
+    public static final AttachmentType<Integer> SLEEP = AttachmentRegistry.create(
+            MorePups.id("sleep"),
+            builder -> builder
+                    .initializer(() -> 100)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
+    public static final AttachmentType<Long> LAST_PET = AttachmentRegistry.createPersistent(
+            MorePups.id("last_pet"), Codec.LONG);
+
     public static void initialize() {
     }
 }
