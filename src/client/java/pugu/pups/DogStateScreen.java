@@ -26,8 +26,27 @@ public class DogStateScreen extends Screen {
     private static final int PANEL_HEIGHT = 206;
     private static final int TEXTURE_V = 14;
 
+    private static final int STATS_WIDTH = 111;
+    private static final int STATS_HEIGHT = 193;
+    private static final int STATS_V = 20;
+
+    private static final int BAR_WIDTH = 102;
+    private static final int BAR_HEIGHT = 5;
+    private static final int BAR_U = 120;
+    private static final int EMPTY_BAR_V = 20;
+
+    private static final int FOOD_FILL_V = 26;
+    private static final int PLAY_FILL_V = 32;
+    private static final int SLEEP_FILL_V = 38;
+    private static final int XP_FILL_V = 44;
+
+    private static final int FIRST_BAR_Y = 45;
+    private static final int BAR_SPACING = 40;
+
     private static final Identifier BACKGROUND =
             Identifier.fromNamespaceAndPath(MorePups.MOD_ID, "textures/gui/dog_state_screen.png");
+    private static final Identifier STATS_BACKGROUND =
+            Identifier.fromNamespaceAndPath(MorePups.MOD_ID, "textures/gui/dog_state_screen_stats.png");
 
     private final Wolf dog;
     private final int dogEntityId;
@@ -98,13 +117,6 @@ public class DogStateScreen extends Screen {
                     Component.literal("Dog has not claimed a bed.").withStyle(ChatFormatting.RED)));
         }
 
-        bed.active = this.hasBed && this.selectedState != DogBehaviorState.RETURN_TO_BED;
-
-        if (!this.hasBed) {
-            bed.setTooltip(Tooltip.create(
-                    Component.literal("Dog has not claimed a bed.").withStyle(ChatFormatting.RED)));
-        }
-
         this.addRenderableWidget(Button.builder(Component.literal("Cancel"), button -> this.onClose())
                 .bounds(rowX, firstRowY + 98, 46, 20).build());
 
@@ -129,6 +141,13 @@ public class DogStateScreen extends Screen {
         this.mouseXPos = mouseX;
         this.mouseYPos = mouseY;
 
+        int statsLeft = this.left + 118;
+        int statsTop = this.top + 6;
+
+        graphics.blit(RenderPipelines.GUI_TEXTURED, STATS_BACKGROUND,
+                statsLeft, statsTop, 0.0F, (float) STATS_V,
+                STATS_WIDTH, STATS_HEIGHT, 256, 256);
+
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND,
                 this.left, this.top, 0.0F, (float) TEXTURE_V,
                 PANEL_WIDTH, PANEL_HEIGHT, 256, 256);
@@ -142,6 +161,36 @@ public class DogStateScreen extends Screen {
 
         graphics.text(this.font, this.title,
                 this.width / 2 - this.font.width(this.title) / 2, this.top - 15, 0xFFFFFFFF);
+
+        graphics.text(this.font, Component.literal("Stats:"),
+                statsLeft + 3, statsTop + 8, 0xFFFFFFFF);
+
+        this.drawBar(graphics, statsLeft, statsTop, 0, "Food",
+                this.dog.getAttachedOrElse(ModAttachments.FOOD, 100), FOOD_FILL_V);
+
+        this.drawBar(graphics, statsLeft, statsTop, 1, "Play", 0, PLAY_FILL_V);
+        this.drawBar(graphics, statsLeft, statsTop, 2, "Sleep", 0, SLEEP_FILL_V);
+        this.drawBar(graphics, statsLeft, statsTop, 3, "XP", 0, XP_FILL_V);
+    }
+
+    private void drawBar(GuiGraphicsExtractor graphics, int statsLeft, int statsTop,
+                         int index, String label, int value, int fillV) {
+        int barX = statsLeft + 3;
+        int barY = statsTop + FIRST_BAR_Y + index * BAR_SPACING;
+
+        graphics.text(this.font, Component.literal(label), barX, barY - 12, 0xFFFFFFFF);
+
+        graphics.blit(RenderPipelines.GUI_TEXTURED, STATS_BACKGROUND,
+                barX, barY, (float) BAR_U, (float) EMPTY_BAR_V,
+                BAR_WIDTH, BAR_HEIGHT, 256, 256);
+
+        int filled = BAR_WIDTH * Mth.clamp(value, 0, 100) / 100;
+
+        if (filled > 0) {
+            graphics.blit(RenderPipelines.GUI_TEXTURED, STATS_BACKGROUND,
+                    barX, barY, (float) BAR_U, (float) fillV,
+                    filled, BAR_HEIGHT, 256, 256);
+        }
     }
 
     private void select(DogBehaviorState state) {
