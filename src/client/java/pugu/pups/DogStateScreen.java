@@ -39,9 +39,10 @@ public class DogStateScreen extends Screen {
     private static final int PLAY_FILL_V = 32;
     private static final int SLEEP_FILL_V = 38;
     private static final int XP_FILL_V = 44;
+    private static final int HAPPINESS_FILL_V = 50;
 
-    private static final int FIRST_BAR_Y = 45;
-    private static final int BAR_SPACING = 40;
+    private static final int FIRST_BAR_Y = 40;
+    private static final int BAR_SPACING = 32;
 
     private static final Identifier BACKGROUND =
             Identifier.fromNamespaceAndPath(MorePups.MOD_ID, "textures/gui/dog_state_screen.png");
@@ -174,7 +175,10 @@ public class DogStateScreen extends Screen {
         this.drawBar(graphics, statsLeft, statsTop, 2, "Sleep",
                 this.dog.getAttachedOrElse(ModAttachments.SLEEP, 100), SLEEP_FILL_V);
 
-        this.drawBar(graphics, statsLeft, statsTop, 3, "XP", 0, XP_FILL_V);
+        this.drawBar(graphics, statsLeft, statsTop, 3, "Happiness",
+                DogStats.happiness(this.dog), HAPPINESS_FILL_V);
+
+        this.drawBar(graphics, statsLeft, statsTop, 4, "XP", 0, XP_FILL_V);
     }
 
     private void drawBar(GuiGraphicsExtractor graphics, int statsLeft, int statsTop,
