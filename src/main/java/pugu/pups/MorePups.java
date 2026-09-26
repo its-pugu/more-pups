@@ -17,6 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,16 @@ public class MorePups implements ModInitializer {
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof Wolf wolf && wolf.getOwner() instanceof Player owner) {
 				DogTracking.forget(owner, wolf.getUUID());
+			}
+
+			if (source.getEntity() instanceof Wolf killer && killer.isTame()) {
+				DogStats.awardXp(killer, entity instanceof Enemy ? 5 : 2);
+			}
+		});
+
+		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseAmount, amount, blocked) -> {
+			if (source.getEntity() instanceof Wolf wolf && wolf.isTame()) {
+				DogStats.awardXp(wolf, entity instanceof Enemy ? 2 : 1);
 			}
 		});
 

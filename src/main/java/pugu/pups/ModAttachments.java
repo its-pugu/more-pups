@@ -70,6 +70,20 @@ public class ModAttachments {
                     .persistent(Codec.INT)
                     .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
 
+    public static final AttachmentType<Integer> XP = AttachmentRegistry.create(
+            MorePups.id("xp"),
+            builder -> builder
+                    .initializer(() -> 0)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
+    public static final AttachmentType<Integer> LEVEL = AttachmentRegistry.create(
+            MorePups.id("level"),
+            builder -> builder
+                    .initializer(() -> 1)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
     public static final AttachmentType<Long> LAST_PET = AttachmentRegistry.createPersistent(
             MorePups.id("last_pet"), Codec.LONG);
 

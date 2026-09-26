@@ -166,6 +166,10 @@ public class DogStateScreen extends Screen {
         graphics.text(this.font, Component.literal("Stats:"),
                 statsLeft + 3, statsTop + 8, 0xFFFFFFFF);
 
+        int xp = this.dog.getAttachedOrElse(ModAttachments.XP, 0);
+        int level = this.dog.getAttachedOrElse(ModAttachments.LEVEL, 1);
+        int needed = Math.max(1, level * 100);
+
         this.drawBar(graphics, statsLeft, statsTop, 0, "Food",
                 this.dog.getAttachedOrElse(ModAttachments.FOOD, 100), FOOD_FILL_V);
 
@@ -178,7 +182,8 @@ public class DogStateScreen extends Screen {
         this.drawBar(graphics, statsLeft, statsTop, 3, "Happiness",
                 DogStats.happiness(this.dog), HAPPINESS_FILL_V);
 
-        this.drawBar(graphics, statsLeft, statsTop, 4, "XP", 0, XP_FILL_V);
+        this.drawBar(graphics, statsLeft, statsTop, 4, "Lv " + level,
+                xp * 100 / needed, XP_FILL_V);
     }
 
     private void drawBar(GuiGraphicsExtractor graphics, int statsLeft, int statsTop,

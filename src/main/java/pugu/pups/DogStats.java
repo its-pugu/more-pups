@@ -66,6 +66,19 @@ public class DogStats {
         return (food * FOOD_WEIGHT + play * PLAY_WEIGHT + sleep * SLEEP_WEIGHT) / 100;
     }
 
+    public static int xpForNextLevel(Wolf dog) {
+        return dog.getAttachedOrElse(ModAttachments.LEVEL, 1) * 100;
+    }
+
+    public static void awardXp(Wolf dog, int baseAmount) {
+        int amount = Math.max(1, Math.round(baseAmount * xpMultiplier(dog)));
+        int xp = dog.getAttachedOrElse(ModAttachments.XP, 0) + amount;
+        int level = dog.getAttachedOrElse(ModAttachments.LEVEL, 1);
+
+        dog.setAttached(ModAttachments.XP, xp);
+        dog.setAttached(ModAttachments.LEVEL, level);
+    }
+
     public static float xpMultiplier(Wolf dog) {
         return 0.5F + happiness(dog) / 100.0F;
     }
