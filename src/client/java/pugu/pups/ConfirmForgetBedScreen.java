@@ -6,9 +6,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class ConfirmForgetBedScreen extends Screen {
-    private final DogStateScreen parent;
+    private final AbstractDogScreen parent;
 
-    public ConfirmForgetBedScreen(DogStateScreen parent) {
+    public ConfirmForgetBedScreen(AbstractDogScreen parent) {
         super(Component.literal("Are you sure?"));
         this.parent = parent;
     }

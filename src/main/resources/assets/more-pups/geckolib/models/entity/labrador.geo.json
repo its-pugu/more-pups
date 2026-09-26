@@ -65,6 +65,7 @@
 					"name": "mouth",
 					"parent": "head",
 					"pivot": [0, 8.7, -9.4],
+					"rotation": [90, 0, 0],
 					"cubes": [
 						{"origin": [0, 8.7, -9.4], "size": [0, 0, 0], "pivot": [0, 8.7, -9.4], "rotation": [90, 0, 0], "uv": [4, 2]}
 					]
