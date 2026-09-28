@@ -10,6 +10,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import java.util.List;
 
 public class ModAttachments {
+    public static final AttachmentType<List<Long>> POPULATED_VILLAGES = AttachmentRegistry.createPersistent(
+            MorePups.id("populated_villages"), Codec.LONG.listOf());
+
     public static final AttachmentType<DogBehaviorState> DOG_STATE = AttachmentRegistry.create(
             MorePups.id("dog_state"),
             builder -> builder
@@ -43,6 +46,7 @@ public class ModAttachments {
             builder -> builder
                     .persistent(BlockPos.CODEC)
                     .syncWith(BlockPos.STREAM_CODEC, AttachmentSyncPredicate.all()));
+
     public static final AttachmentType<List<DogRecord>> OWNED_DOGS = AttachmentRegistry.create(
             MorePups.id("owned_dogs"),
             builder -> builder
@@ -83,6 +87,21 @@ public class ModAttachments {
                     .initializer(() -> 1)
                     .persistent(Codec.INT)
                     .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
+    public static final AttachmentType<Integer> SKILL_POINTS = AttachmentRegistry.create(
+            MorePups.id("skill_points"),
+            builder -> builder
+                    .initializer(() -> 0)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all()));
+
+    public static final AttachmentType<List<DogSkill>> UNLOCKED_SKILLS = AttachmentRegistry.create(
+            MorePups.id("unlocked_skills"),
+            builder -> builder
+                    .initializer(List::of)
+                    .persistent(DogSkill.CODEC.listOf())
+                    .syncWith(DogSkill.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                            AttachmentSyncPredicate.all()));
 
     public static final AttachmentType<Long> LAST_PET = AttachmentRegistry.createPersistent(
             MorePups.id("last_pet"), Codec.LONG);

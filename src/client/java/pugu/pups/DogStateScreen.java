@@ -49,23 +49,25 @@ public class DogStateScreen extends AbstractDogScreen {
         int needed = Math.max(1, level * 100);
 
         this.drawBar(graphics, sideLeft, sideTop, 0, "Food",
-                this.dog.getAttachedOrElse(ModAttachments.FOOD, 100), FOOD_FILL_V);
+                this.dog.getAttachedOrElse(ModAttachments.FOOD, 100), FOOD_FILL_V, null);
 
         this.drawBar(graphics, sideLeft, sideTop, 1, "Play",
-                this.dog.getAttachedOrElse(ModAttachments.PLAY, 100), PLAY_FILL_V);
+                this.dog.getAttachedOrElse(ModAttachments.PLAY, 100), PLAY_FILL_V, null);
 
         this.drawBar(graphics, sideLeft, sideTop, 2, "Sleep",
-                this.dog.getAttachedOrElse(ModAttachments.SLEEP, 100), SLEEP_FILL_V);
+                this.dog.getAttachedOrElse(ModAttachments.SLEEP, 100), SLEEP_FILL_V, null);
 
-        this.drawBar(graphics, sideLeft, sideTop, 3, "Happiness",
-                DogStats.happiness(this.dog), HAPPINESS_FILL_V);
+        int happiness = DogStats.happiness(this.dog);
 
-        this.drawBar(graphics, sideLeft, sideTop, 4, "Lv " + level,
-                xp * 100 / needed, XP_FILL_V);
+        this.drawBar(graphics, sideLeft, sideTop, 3, "Happiness", happiness, HAPPINESS_FILL_V,
+                happiness + "/100 (x" + String.format("%.2f", DogStats.xpMultiplier(this.dog)) + ")");
+
+        this.drawBar(graphics, sideLeft, sideTop, 4, "Lvl " + level,
+                xp * 100 / needed, XP_FILL_V, xp + "/" + needed);
     }
 
     private void drawBar(GuiGraphicsExtractor graphics, int sideLeft, int sideTop,
-                         int index, String label, int value, int fillV) {
+                         int index, String label, int value, int fillV, String tooltipOverride) {
         int barX = sideLeft + 3;
         int barY = sideTop + FIRST_BAR_Y + index * BAR_SPACING;
 
@@ -81,6 +83,11 @@ public class DogStateScreen extends AbstractDogScreen {
             graphics.blit(RenderPipelines.GUI_TEXTURED, STATS_BACKGROUND,
                     barX, barY, (float) BAR_U, (float) fillV,
                     filled, BAR_HEIGHT, 256, 256);
+        }
+
+        if (this.isOver(barX, barY, BAR_WIDTH, BAR_HEIGHT)) {
+            this.hoverTitle = label;
+            this.hoverDescription = tooltipOverride != null ? tooltipOverride : value + "/100";
         }
     }
 }

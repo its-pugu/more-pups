@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MorePups implements ModInitializer {
@@ -49,6 +50,7 @@ public class MorePups implements ModInitializer {
 		PayloadTypeRegistry.clientboundPlay().register(DogListPayload.TYPE, DogListPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SummonDogPayload.TYPE, SummonDogPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ForgetDogBedPayload.TYPE, ForgetDogBedPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(BuySkillPayload.TYPE, BuySkillPayload.CODEC);
 
 
 		ServerTickEvents.END_LEVEL_TICK.register(VillageDogSpawner::tick);
@@ -74,6 +76,35 @@ public class MorePups implements ModInitializer {
 			if (source.getEntity() instanceof Wolf wolf && wolf.isTame()) {
 				DogStats.awardXp(wolf, entity instanceof Enemy ? 2 : 1);
 			}
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(BuySkillPayload.TYPE, (payload, context) -> {
+			if (!(context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf)
+					|| !wolf.isOwnedBy(context.player())) {
+				return;
+			}
+
+			DogSkill skill = payload.skill();
+			List<DogSkill> unlocked = wolf.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
+			int points = wolf.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0);
+
+			if (points < 1 || unlocked.contains(skill)) {
+				return;
+			}
+
+			if (skill.parent() != null && !unlocked.contains(skill.parent())) {
+				return;
+			}
+
+			if (skill.isBranch() && unlocked.stream().anyMatch(DogSkill::isBranch)) {
+				return;
+			}
+
+			List<DogSkill> updated = new ArrayList<>(unlocked);
+			updated.add(skill);
+
+			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
+			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(SetDogStatePayload.TYPE, (payload, context) -> {

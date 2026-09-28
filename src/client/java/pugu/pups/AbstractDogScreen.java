@@ -38,6 +38,18 @@ public abstract class AbstractDogScreen extends Screen {
     protected static final int TAB_OVERLAP = 3;
     protected static final int FIRST_TAB_Y = 4;
 
+    protected static final int HEALTH_U = 119;
+    protected static final int HEALTH_FILL_V = 14;
+    protected static final int HEALTH_EMPTY_V = 18;
+    protected static final int HEALTH_WIDTH = 90;
+    protected static final int HEALTH_HEIGHT = 4;
+    protected static final int HEALTH_X = 14;
+    protected static final int HEALTH_Y = 68;
+    protected static final int NAME_Y = 12;
+
+    protected static final int TOOLTIP_COLOUR = 0xFFFFFFFF;
+    protected static final int TOOLTIP_DIM = 0xFFAAAAAA;
+
     protected static final Identifier BACKGROUND =
             Identifier.fromNamespaceAndPath(MorePups.MOD_ID, "textures/gui/dog_state_screen.png");
 
@@ -55,6 +67,9 @@ public abstract class AbstractDogScreen extends Screen {
     protected float mouseXPos;
     protected float mouseYPos;
 
+    protected String hoverTitle;
+    protected String hoverDescription;
+
     protected AbstractDogScreen(Wolf dog, Component title) {
         super(title);
 
@@ -67,13 +82,10 @@ public abstract class AbstractDogScreen extends Screen {
         this.relaxRadius = dog.getAttachedOrElse(ModAttachments.RELAX_RADIUS, 16);
     }
 
-    /** Which tab this screen represents. */
     protected abstract DogScreenTab tab();
 
-    /** The texture drawn in the right-hand panel. */
     protected abstract Identifier sidePanelTexture();
 
-    /** Draw whatever belongs on the right-hand panel, after the widgets. */
     protected abstract void renderSidePanel(GuiGraphicsExtractor graphics, int sideLeft, int sideTop);
 
     @Override
@@ -154,10 +166,18 @@ public abstract class AbstractDogScreen extends Screen {
         return this.sideTop() + FIRST_TAB_Y + tab.ordinal() * TAB_HEIGHT;
     }
 
+    protected boolean isOver(int x, int y, int width, int height) {
+        return this.mouseXPos >= x && this.mouseXPos < x + width
+                && this.mouseYPos >= y && this.mouseYPos < y + height;
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         this.mouseXPos = mouseX;
         this.mouseYPos = mouseY;
+
+        this.hoverTitle = null;
+        this.hoverDescription = null;
 
         int sideLeft = this.sideLeft();
         int sideTop = this.sideTop();
@@ -189,10 +209,53 @@ public abstract class AbstractDogScreen extends Screen {
 
         super.extractRenderState(graphics, mouseX, mouseY, a);
 
-        graphics.text(this.font, this.title,
-                this.width / 2 - this.font.width(this.title) / 2, this.top - 15, 0xFFFFFFFF);
+        Component name = this.dog.getName();
+
+        graphics.text(this.font, name,
+                this.left + 59 - this.font.width(name) / 2, this.top + NAME_Y, 0xFFFFFFFF);
+
+        int healthX = this.left + HEALTH_X;
+        int healthY = this.top + HEALTH_Y;
+
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND,
+                healthX, healthY, (float) HEALTH_U, (float) HEALTH_EMPTY_V,
+                HEALTH_WIDTH, HEALTH_HEIGHT, 256, 256);
+
+        int healthFilled = (int) (HEALTH_WIDTH * this.dog.getHealth() / this.dog.getMaxHealth());
+
+        if (healthFilled > 0) {
+            graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND,
+                    healthX, healthY, (float) HEALTH_U, (float) HEALTH_FILL_V,
+                    healthFilled, HEALTH_HEIGHT, 256, 256);
+        }
+
+        if (this.isOver(healthX, healthY, HEALTH_WIDTH, HEALTH_HEIGHT)) {
+            this.hoverTitle = "Health";
+            this.hoverDescription = (int) this.dog.getHealth() + "/" + (int) this.dog.getMaxHealth();
+        }
+
+        for (DogScreenTab tab : DogScreenTab.values()) {
+            if (this.isOver(this.tabX(), this.tabY(tab), TAB_WIDTH, TAB_HEIGHT)) {
+                this.hoverTitle = tab.title();
+            }
+        }
 
         this.renderSidePanel(graphics, sideLeft, sideTop);
+        this.renderTooltip(graphics);
+    }
+
+    protected void renderTooltip(GuiGraphicsExtractor graphics) {
+        if (this.hoverTitle == null) {
+            return;
+        }
+
+        graphics.text(this.font, Component.literal(this.hoverTitle),
+                (int) this.mouseXPos + 8, (int) this.mouseYPos - 12, TOOLTIP_COLOUR);
+
+        if (this.hoverDescription != null) {
+            graphics.text(this.font, Component.literal(this.hoverDescription),
+                    (int) this.mouseXPos + 8, (int) this.mouseYPos, TOOLTIP_DIM);
+        }
     }
 
     @Override

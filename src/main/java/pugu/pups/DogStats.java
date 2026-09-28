@@ -74,7 +74,12 @@ public class DogStats {
         int amount = Math.max(1, Math.round(baseAmount * xpMultiplier(dog)));
         int xp = dog.getAttachedOrElse(ModAttachments.XP, 0) + amount;
         int level = dog.getAttachedOrElse(ModAttachments.LEVEL, 1);
-
+        while (xp >= level * 100) {
+            xp -= level * 100;
+            level++;
+            dog.setAttached(ModAttachments.SKILL_POINTS,
+                    dog.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0) + 1);
+        }
         dog.setAttached(ModAttachments.XP, xp);
         dog.setAttached(ModAttachments.LEVEL, level);
     }
