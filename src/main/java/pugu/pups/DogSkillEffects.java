@@ -23,6 +23,11 @@ public class DogSkillEffects {
         set(dog, Attributes.ARMOR, DogSkill.RESILIENCE, 0.05D, unlocked);
 
         dog.setHealth(Math.min(dog.getMaxHealth(), dog.getMaxHealth() * ratio));
+        AttributeInstance reach = dog.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
+
+        if (reach != null) {
+            reach.setBaseValue(10.D);
+        }
     }
 
     private static void set(Wolf dog, Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute,

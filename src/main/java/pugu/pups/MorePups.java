@@ -1,9 +1,9 @@
 package pugu.pups;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
@@ -30,15 +31,12 @@ import java.util.List;
 public class MorePups implements ModInitializer {
 	public static final String MOD_ID = "more-pups";
 
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	@Override
 	public void onInitialize() {
 		LOGGER.info("WOOF!");
-		ModCommands.initialize();
+
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
@@ -48,14 +46,16 @@ public class MorePups implements ModInitializer {
 		ModDataComponents.initialize();
 		ModRecipes.initialize();
 		ModAttachments.initialize();
+		ModCommands.initialize();
 		DogInteractionHandler.initialize();
+
 		PayloadTypeRegistry.serverboundPlay().register(SetDogStatePayload.TYPE, SetDogStatePayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(DogListPayload.TYPE, DogListPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SummonDogPayload.TYPE, SummonDogPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ForgetDogBedPayload.TYPE, ForgetDogBedPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(BuySkillPayload.TYPE, BuySkillPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(DropDogItemPayload.TYPE, DropDogItemPayload.CODEC);
-
+		PayloadTypeRegistry.serverboundPlay().register(PetDogPayload.TYPE, PetDogPayload.CODEC);
 
 		ServerTickEvents.END_LEVEL_TICK.register(VillageDogSpawner::tick);
 		ServerTickEvents.END_LEVEL_TICK.register(DogStats::tick);
@@ -63,6 +63,23 @@ public class MorePups implements ModInitializer {
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
 			if (entity instanceof Wolf wolf) {
 				DogTracking.refresh(wolf);
+			}
+		});
+
+		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if (entity instanceof Wolf wolf) {
+				wolf.removeAllGoals(goal -> goal instanceof FollowOwnerGoal
+						|| goal instanceof WaterAvoidingRandomStrollGoal
+						|| goal instanceof MeleeAttackGoal);
+
+				wolf.getGoalSelector().addGoal(6, new FollowCloselyGoal(wolf));
+				wolf.getGoalSelector().addGoal(6, new GuardGoal(wolf));
+				wolf.getGoalSelector().addGoal(6, new RelaxGoal(wolf));
+				wolf.getGoalSelector().addGoal(6, new ReturnToBedGoal(wolf));
+				wolf.getGoalSelector().addGoal(5, new SleepInBedGoal(wolf));
+				wolf.getGoalSelector().addGoal(4, new DogAttackGoal(wolf, 1.2D));
+
+				DogSkillEffects.apply(wolf);
 			}
 		});
 
@@ -79,54 +96,11 @@ public class MorePups implements ModInitializer {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseAmount, amount, blocked) -> {
 			if (source.getEntity() instanceof Wolf wolf && wolf.isTame()) {
 				DogStats.awardXp(wolf, entity instanceof Enemy ? 2 : 1);
-			}
-		});
 
-		ServerPlayNetworking.registerGlobalReceiver(DropDogItemPayload.TYPE, (payload, context) -> {
-			if (context.player().level().getEntity(payload.entityId()) instanceof PupEntity pup
-					&& pup.isOwnedBy(context.player())) {
-
-				ItemStack held = pup.getMainHandItem();
-
-				if (!held.isEmpty()) {
-					pup.spawnAtLocation((ServerLevel) pup.level(), held.copy());
-					pup.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				if (wolf instanceof PupEntity pup && !pup.getMainHandItem().isEmpty()) {
+					pup.getMainHandItem().hurtAndBreak(1, pup, EquipmentSlot.MAINHAND);
 				}
 			}
-		});
-
-		ServerPlayNetworking.registerGlobalReceiver(BuySkillPayload.TYPE, (payload, context) -> {
-			if (!(context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf)
-					|| !wolf.isOwnedBy(context.player())) {
-				return;
-			}
-
-			DogSkill skill = payload.skill();
-			List<DogSkill> unlocked = wolf.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
-			int points = wolf.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0);
-
-			if (points < 1 || unlocked.contains(skill)) {
-				return;
-			}
-
-			if (skill.parent() != null && !unlocked.contains(skill.parent())) {
-				return;
-			}
-
-			if (skill.isBranch() && unlocked.stream().anyMatch(DogSkill::isBranch)) {
-				return;
-			}
-
-			List<DogSkill> updated = new ArrayList<>(unlocked);
-			updated.add(skill);
-
-			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
-			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
-			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
-			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
-
-			DogSkillEffects.apply(wolf);
-
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(SetDogStatePayload.TYPE, (payload, context) -> {
@@ -135,7 +109,6 @@ public class MorePups implements ModInitializer {
 				wolf.setAttached(ModAttachments.DOG_STATE, payload.state());
 				wolf.setAttached(ModAttachments.FOLLOW_DISTANCE, Mth.clamp(payload.followDistance(), 2, 12));
 				wolf.setAttached(ModAttachments.GUARD_RADIUS, Mth.clamp(payload.guardRadius(), 2, 32));
-
 				wolf.setAttached(ModAttachments.RELAX_RADIUS, Mth.clamp(payload.relaxRadius(), 2, 32));
 
 				if (payload.state() == DogBehaviorState.FOLLOW) {
@@ -151,7 +124,6 @@ public class MorePups implements ModInitializer {
 				} else {
 					wolf.setHomeTo(wolf.blockPosition(), wolf.getAttachedOrElse(ModAttachments.RELAX_RADIUS, 16));
 				}
-
 			}
 		});
 
@@ -194,7 +166,53 @@ public class MorePups implements ModInitializer {
 			}
 		});
 
-		PayloadTypeRegistry.serverboundPlay().register(PetDogPayload.TYPE, PetDogPayload.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(BuySkillPayload.TYPE, (payload, context) -> {
+			if (!(context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf)
+					|| !wolf.isOwnedBy(context.player())) {
+				return;
+			}
+
+			DogSkill skill = payload.skill();
+			List<DogSkill> unlocked = wolf.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
+			int points = wolf.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0);
+
+			if (points < 1 || unlocked.contains(skill)) {
+				return;
+			}
+
+			if (skill.parent() != null && !unlocked.contains(skill.parent())) {
+				return;
+			}
+
+			if (skill.isBranch() && unlocked.stream().anyMatch(DogSkill::isBranch)) {
+				return;
+			}
+			if (wolf instanceof PupEntity pup) {
+				pup.getGoalSelector().addGoal(8, new MinerGoal(pup));
+			}
+
+
+			List<DogSkill> updated = new ArrayList<>(unlocked);
+			updated.add(skill);
+
+			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
+			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+
+			DogSkillEffects.apply(wolf);
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(DropDogItemPayload.TYPE, (payload, context) -> {
+			if (context.player().level().getEntity(payload.entityId()) instanceof PupEntity pup
+					&& pup.isOwnedBy(context.player())) {
+
+				ItemStack held = pup.getMainHandItem();
+
+				if (!held.isEmpty()) {
+					pup.spawnAtLocation((ServerLevel) pup.level(), held.copy());
+					pup.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				}
+			}
+		});
 
 		ServerPlayNetworking.registerGlobalReceiver(PetDogPayload.TYPE, (payload, context) -> {
 			if (context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf
@@ -228,19 +246,6 @@ public class MorePups implements ModInitializer {
 						SoundSource.NEUTRAL, 0.6F, 1.2F);
 
 				DogStats.play(wolf, 3);
-			}
-		});
-
-		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
-			if (entity instanceof Wolf wolf) {
-				wolf.removeAllGoals(goal -> goal instanceof FollowOwnerGoal || goal instanceof WaterAvoidingRandomStrollGoal);
-
-				wolf.getGoalSelector().addGoal(6, new FollowCloselyGoal(wolf));
-				wolf.getGoalSelector().addGoal(6, new GuardGoal(wolf));
-				wolf.getGoalSelector().addGoal(5, new SleepInBedGoal(wolf));
-				wolf.getGoalSelector().addGoal(6, new RelaxGoal(wolf));
-				wolf.getGoalSelector().addGoal(6, new ReturnToBedGoal(wolf));
-				DogSkillEffects.apply(wolf);
 			}
 		});
 	}

@@ -51,15 +51,6 @@ public enum DogSkill implements StringRepresentable {
         this.x = x;
     }
 
-    public boolean accepts(ItemStack stack) {
-        return switch (this) {
-            case FIGHTER -> stack.is(ItemTags.SWORDS);
-            case MINER -> stack.is(ItemTags.PICKAXES);
-            case EXPLORER -> stack.is(Items.MAP) || stack.is(Items.FILLED_MAP);
-            default -> false;
-        };
-    }
-
     @Override
     public String getSerializedName() {
         return this.name;
@@ -95,6 +86,15 @@ public enum DogSkill implements StringRepresentable {
 
     public boolean isBranch() {
         return this.parent == RESILIENCE;
+    }
+
+    public boolean accepts(ItemStack stack) {
+        return switch (this) {
+            case FIGHTER -> stack.is(ItemTags.SWORDS);
+            case MINER -> stack.is(ItemTags.PICKAXES);
+            case EXPLORER -> stack.is(Items.MAP) || stack.is(Items.FILLED_MAP);
+            default -> false;
+        };
     }
 
     public static boolean isVisible(DogSkill skill, List<DogSkill> unlocked) {
