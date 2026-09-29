@@ -4,19 +4,28 @@ import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public enum DogSkill implements StringRepresentable {
-    VITALITY("vitality", null, "Vitality", "+10% health", 1, 43),
-    AGILITY("agility", VITALITY, "Agility", "+5% speed", 3, 43),
-    FEROCITY("ferocity", AGILITY, "Ferocity", "+5% damage", 0, 43),
+    VITALITY("vitality", null, "Vitality", "", "+10% health", 1, 43),
+    AGILITY("agility", VITALITY, "Agility", "", "+5% speed", 3, 43),
+    RESILIENCE("resilience", AGILITY, "Resilience", "", "+5% armour", 2, 43),
 
-    FIGHTER("fighter", FEROCITY, "Fighter", "+5% armour", 2, 15),
-    MINER("miner", FEROCITY, "Miner", "Carries blocks for you", 2, 43),
-    EXPLORER("explorer", FEROCITY, "Explorer", "Finds buried treasure", 2, 71);
+    FIGHTER("fighter", RESILIENCE, "The Fighter",
+            "Give your pup a sword and battle alongside them!",
+            "Increases damage and resistance", 0, 15),
+    MINER("miner", RESILIENCE, "The Miner",
+            "Hand your pup a pickaxe and gain a mining companion!",
+            "Barks when an ore is within 5 blocks", 4, 43),
+    EXPLORER("explorer", RESILIENCE, "The Explorer",
+            "Hand this pup a map and explore the world with your bestie!",
+            "Has a chance of finding hidden treasure", 5, 71);
 
     public static final Codec<DogSkill> CODEC = StringRepresentable.fromEnum(DogSkill::values);
 
@@ -27,16 +36,28 @@ public enum DogSkill implements StringRepresentable {
     private final @Nullable DogSkill parent;
     private final String title;
     private final String description;
+    private final String effect;
     private final int column;
     private final int x;
 
-    DogSkill(String name, @Nullable DogSkill parent, String title, String description, int column, int x) {
+    DogSkill(String name, @Nullable DogSkill parent, String title, String description,
+             String effect, int column, int x) {
         this.name = name;
         this.parent = parent;
         this.title = title;
         this.description = description;
+        this.effect = effect;
         this.column = column;
         this.x = x;
+    }
+
+    public boolean accepts(ItemStack stack) {
+        return switch (this) {
+            case FIGHTER -> stack.is(ItemTags.SWORDS);
+            case MINER -> stack.is(ItemTags.PICKAXES);
+            case EXPLORER -> stack.is(Items.MAP) || stack.is(Items.FILLED_MAP);
+            default -> false;
+        };
     }
 
     @Override
@@ -56,6 +77,10 @@ public enum DogSkill implements StringRepresentable {
         return this.description;
     }
 
+    public String effect() {
+        return this.effect;
+    }
+
     public int column() {
         return this.column;
     }
@@ -69,7 +94,7 @@ public enum DogSkill implements StringRepresentable {
     }
 
     public boolean isBranch() {
-        return this.parent == FEROCITY;
+        return this.parent == RESILIENCE;
     }
 
     public static boolean isVisible(DogSkill skill, List<DogSkill> unlocked) {

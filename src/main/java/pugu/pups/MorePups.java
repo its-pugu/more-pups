@@ -14,11 +14,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ public class MorePups implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("WOOF!");
+		ModCommands.initialize();
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
@@ -51,6 +54,7 @@ public class MorePups implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(SummonDogPayload.TYPE, SummonDogPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ForgetDogBedPayload.TYPE, ForgetDogBedPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(BuySkillPayload.TYPE, BuySkillPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(DropDogItemPayload.TYPE, DropDogItemPayload.CODEC);
 
 
 		ServerTickEvents.END_LEVEL_TICK.register(VillageDogSpawner::tick);
@@ -75,6 +79,19 @@ public class MorePups implements ModInitializer {
 		ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseAmount, amount, blocked) -> {
 			if (source.getEntity() instanceof Wolf wolf && wolf.isTame()) {
 				DogStats.awardXp(wolf, entity instanceof Enemy ? 2 : 1);
+			}
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(DropDogItemPayload.TYPE, (payload, context) -> {
+			if (context.player().level().getEntity(payload.entityId()) instanceof PupEntity pup
+					&& pup.isOwnedBy(context.player())) {
+
+				ItemStack held = pup.getMainHandItem();
+
+				if (!held.isEmpty()) {
+					pup.spawnAtLocation((ServerLevel) pup.level(), held.copy());
+					pup.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				}
 			}
 		});
 
@@ -105,6 +122,11 @@ public class MorePups implements ModInitializer {
 
 			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
 			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
+			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+
+			DogSkillEffects.apply(wolf);
+
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(SetDogStatePayload.TYPE, (payload, context) -> {
@@ -218,6 +240,7 @@ public class MorePups implements ModInitializer {
 				wolf.getGoalSelector().addGoal(5, new SleepInBedGoal(wolf));
 				wolf.getGoalSelector().addGoal(6, new RelaxGoal(wolf));
 				wolf.getGoalSelector().addGoal(6, new ReturnToBedGoal(wolf));
+				DogSkillEffects.apply(wolf);
 			}
 		});
 	}

@@ -15,7 +15,7 @@ public class DogSkillScreen extends AbstractDogScreen {
     private static final int NODE_SPACING = 28;
     private static final int FIRST_NODE_Y = 159;
 
-    private static final int ICONS_WIDTH = 88;
+    private static final int ICONS_WIDTH = 132;
     private static final int ICONS_HEIGHT = 66;
 
     private static final int ROW_AVAILABLE = 0;
@@ -75,6 +75,7 @@ public class DogSkillScreen extends AbstractDogScreen {
                 this.drawBorder(graphics, x, y);
                 this.hoverTitle = skill.title();
                 this.hoverDescription = skill.description();
+                this.hoverEffect = skill.effect();
             }
         }
 
@@ -82,6 +83,17 @@ public class DogSkillScreen extends AbstractDogScreen {
 
         graphics.text(this.font, Component.literal("Points: " + points),
                 sideLeft + 3, sideTop + 8, 0xFFFFFFFF);
+
+        boolean atBranch = unlocked.contains(DogSkill.RESILIENCE)
+                && unlocked.stream().noneMatch(DogSkill::isBranch);
+
+        if (atBranch) {
+            Component prompt = Component.literal("Choose your path");
+            int promptY = this.nodeY(sideTop, DogSkill.FIGHTER) - 14;
+
+            graphics.text(this.font, prompt,
+                    sideLeft + SIDE_WIDTH / 2 - this.font.width(prompt) / 2, promptY, 0xFFFFFFFF);
+        }
     }
 
     private void drawBorder(GuiGraphicsExtractor graphics, int x, int y) {
@@ -132,7 +144,6 @@ public class DogSkillScreen extends AbstractDogScreen {
         int right = Math.max(x1, x2);
         int bottom = Math.max(y1, y2);
 
-        graphics.fill(left - 1, top - 1, right + 2, bottom + 2, 0xFF000000);
         graphics.fill(left, top, right + 1, bottom + 1, 0xFFFFFFFF);
     }
 

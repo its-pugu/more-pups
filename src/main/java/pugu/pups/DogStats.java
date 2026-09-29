@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 
+import java.util.List;
+
 public class DogStats {
     private static final int INTERVAL_TICKS = 600;
 
@@ -82,6 +84,11 @@ public class DogStats {
         }
         dog.setAttached(ModAttachments.XP, xp);
         dog.setAttached(ModAttachments.LEVEL, level);
+    }
+
+    public static DogSkill classOf(Wolf dog) {
+        return dog.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.<DogSkill>of())
+                .stream().filter(DogSkill::isBranch).findFirst().orElse(null);
     }
 
     public static float xpMultiplier(Wolf dog) {

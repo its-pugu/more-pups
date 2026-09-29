@@ -12,9 +12,12 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.IntConsumer;
 
 public abstract class AbstractDogScreen extends Screen {
@@ -47,9 +50,6 @@ public abstract class AbstractDogScreen extends Screen {
     protected static final int HEALTH_Y = 68;
     protected static final int NAME_Y = 12;
 
-    protected static final int TOOLTIP_COLOUR = 0xFFFFFFFF;
-    protected static final int TOOLTIP_DIM = 0xFFAAAAAA;
-
     protected static final Identifier BACKGROUND =
             Identifier.fromNamespaceAndPath(MorePups.MOD_ID, "textures/gui/dog_state_screen.png");
 
@@ -69,6 +69,9 @@ public abstract class AbstractDogScreen extends Screen {
 
     protected String hoverTitle;
     protected String hoverDescription;
+    protected String hoverEffect;
+
+    protected Button dropButton;
 
     protected AbstractDogScreen(Wolf dog, Component title) {
         super(title);
@@ -88,6 +91,10 @@ public abstract class AbstractDogScreen extends Screen {
 
     protected abstract void renderSidePanel(GuiGraphicsExtractor graphics, int sideLeft, int sideTop);
 
+    protected void dropItem() {
+        ClientPlayNetworking.send(new DropDogItemPayload(this.dogEntityId));
+    }
+
     @Override
     protected void init() {
         this.left = (this.width - (PANEL_WIDTH + SIDE_WIDTH + TAB_WIDTH - TAB_OVERLAP)) / 2;
@@ -96,6 +103,12 @@ public abstract class AbstractDogScreen extends Screen {
         int rowX = this.left + 10;
         int rowWidth = 98;
         int firstRowY = this.top + 81;
+        this.dropButton = this.addRenderableWidget(Button.builder(Component.literal("\u2193"),
+                        button -> this.dropItem())
+                .bounds(this.left + 90, this.top + 54, 14, 14).build());
+
+        this.dropButton.setTooltip(Tooltip.create(Component.literal("Drop Item")));
+        this.dropButton.visible = false;
 
         this.addRow(rowX, firstRowY, rowWidth, DogBehaviorState.FOLLOW, "Follow",
                 "Distance", "How close the dog stays to you",
@@ -136,6 +149,7 @@ public abstract class AbstractDogScreen extends Screen {
 
         this.addRenderableWidget(Button.builder(Component.literal("OK"), button -> this.apply())
                 .bounds(rowX + 52, firstRowY + 98, 46, 20).build());
+
     }
 
     private void addRow(int x, int y, int width, DogBehaviorState state, String label,
@@ -178,6 +192,7 @@ public abstract class AbstractDogScreen extends Screen {
 
         this.hoverTitle = null;
         this.hoverDescription = null;
+        this.hoverEffect = null;
 
         int sideLeft = this.sideLeft();
         int sideTop = this.sideTop();
@@ -207,6 +222,9 @@ public abstract class AbstractDogScreen extends Screen {
                 this.left + 108, this.top + 77,
                 60, 0.0625F, this.mouseXPos, this.mouseYPos, this.dog);
 
+        this.dropButton.visible = !this.dog.getMainHandItem().isEmpty()
+                && this.isOver(this.left + 10, this.top + 8, 98, 69);
+
         super.extractRenderState(graphics, mouseX, mouseY, a);
 
         Component name = this.dog.getName();
@@ -231,7 +249,7 @@ public abstract class AbstractDogScreen extends Screen {
 
         if (this.isOver(healthX, healthY, HEALTH_WIDTH, HEALTH_HEIGHT)) {
             this.hoverTitle = "Health";
-            this.hoverDescription = (int) this.dog.getHealth() + "/" + (int) this.dog.getMaxHealth();
+            this.hoverEffect = (int) this.dog.getHealth() + "/" + (int) this.dog.getMaxHealth();
         }
 
         for (DogScreenTab tab : DogScreenTab.values()) {
@@ -249,13 +267,23 @@ public abstract class AbstractDogScreen extends Screen {
             return;
         }
 
-        graphics.text(this.font, Component.literal(this.hoverTitle),
-                (int) this.mouseXPos + 8, (int) this.mouseYPos - 12, TOOLTIP_COLOUR);
+        List<FormattedCharSequence> lines = new ArrayList<>();
 
-        if (this.hoverDescription != null) {
-            graphics.text(this.font, Component.literal(this.hoverDescription),
-                    (int) this.mouseXPos + 8, (int) this.mouseYPos, TOOLTIP_DIM);
+        lines.add(Component.literal(this.hoverTitle)
+                .withStyle(ChatFormatting.BOLD, ChatFormatting.ITALIC, ChatFormatting.WHITE)
+                .getVisualOrderText());
+
+        if (this.hoverDescription != null && !this.hoverDescription.isEmpty()) {
+            lines.add(Component.literal(this.hoverDescription)
+                    .withStyle(ChatFormatting.WHITE).getVisualOrderText());
         }
+
+        if (this.hoverEffect != null && !this.hoverEffect.isEmpty()) {
+            lines.add(Component.literal(this.hoverEffect)
+                    .withStyle(ChatFormatting.GRAY).getVisualOrderText());
+        }
+
+        graphics.setTooltipForNextFrame(this.font, lines, (int) this.mouseXPos, (int) this.mouseYPos);
     }
 
     @Override

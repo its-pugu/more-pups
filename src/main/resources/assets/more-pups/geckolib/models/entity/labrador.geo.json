@@ -71,6 +71,15 @@
 					]
 				},
 				{
+					"name": "mouth2",
+					"parent": "head",
+					"pivot": [-2.7, 8.7, -9.4],
+					"rotation": [90, 30, 0],
+					"cubes": [
+						{"origin": [-2.7, 8.7, -9.4], "size": [0, 0, 0], "pivot": [-2.7, 8.7, -9.4], "rotation": [90, 0, -30], "uv": [4, 2]}
+					]
+				},
+				{
 					"name": "body",
 					"pivot": [0, 8.7, -3],
 					"cubes": [
