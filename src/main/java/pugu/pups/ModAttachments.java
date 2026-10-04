@@ -13,6 +13,9 @@ public class ModAttachments {
     public static final AttachmentType<List<Long>> POPULATED_VILLAGES = AttachmentRegistry.createPersistent(
             MorePups.id("populated_villages"), Codec.LONG.listOf());
 
+    public static final AttachmentType<Boolean> GOALS_APPLIED =
+            AttachmentRegistry.create(MorePups.id("goals_applied"));
+
     public static final AttachmentType<DogBehaviorState> DOG_STATE = AttachmentRegistry.create(
             MorePups.id("dog_state"),
             builder -> builder

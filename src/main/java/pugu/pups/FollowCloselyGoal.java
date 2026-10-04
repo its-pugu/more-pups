@@ -67,7 +67,19 @@ public class FollowCloselyGoal extends Goal {
 
         if (--this.pathTimer <= 0) {
             this.pathTimer = 10;
-            this.wolf.getNavigation().moveTo(this.owner, 1.0D);
+            this.wolf.getNavigation().moveTo(this.owner, this.speedFor(this.wolf.distanceToSqr(this.owner)));
         }
+    }
+
+    private double speedFor(double distanceSqr) {
+        if (distanceSqr > 400.0D) {
+            return 1.6D;
+        }
+
+        if (distanceSqr > 100.0D) {
+            return 1.3D;
+        }
+
+        return 1.0D;
     }
 }

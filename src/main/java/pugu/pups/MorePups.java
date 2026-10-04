@@ -1,9 +1,9 @@
 package pugu.pups;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
@@ -68,9 +68,23 @@ public class MorePups implements ModInitializer {
 
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
 			if (entity instanceof Wolf wolf) {
+				if (wolf.getAttachedOrElse(ModAttachments.GOALS_APPLIED, false)) {
+					return;
+				}
+
+				wolf.setAttached(ModAttachments.GOALS_APPLIED, true);
+
 				wolf.removeAllGoals(goal -> goal instanceof FollowOwnerGoal
 						|| goal instanceof WaterAvoidingRandomStrollGoal
-						|| goal instanceof MeleeAttackGoal);
+						|| goal instanceof MeleeAttackGoal
+						|| goal instanceof FollowCloselyGoal
+						|| goal instanceof GuardGoal
+						|| goal instanceof RelaxGoal
+						|| goal instanceof ReturnToBedGoal
+						|| goal instanceof SleepInBedGoal
+						|| goal instanceof DogAttackGoal
+						|| goal instanceof MinerGoal
+						|| goal instanceof ExplorerGoal);
 
 				wolf.getGoalSelector().addGoal(6, new FollowCloselyGoal(wolf));
 				wolf.getGoalSelector().addGoal(6, new GuardGoal(wolf));
@@ -78,6 +92,11 @@ public class MorePups implements ModInitializer {
 				wolf.getGoalSelector().addGoal(6, new ReturnToBedGoal(wolf));
 				wolf.getGoalSelector().addGoal(5, new SleepInBedGoal(wolf));
 				wolf.getGoalSelector().addGoal(4, new DogAttackGoal(wolf, 1.2D));
+
+				if (wolf instanceof PupEntity pup) {
+					pup.getGoalSelector().addGoal(8, new MinerGoal(pup));
+					pup.getGoalSelector().addGoal(5, new ExplorerGoal(pup));
+				}
 
 				DogSkillEffects.apply(wolf);
 			}
@@ -104,6 +123,7 @@ public class MorePups implements ModInitializer {
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(SetDogStatePayload.TYPE, (payload, context) -> {
+
 			if (context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf
 					&& wolf.isOwnedBy(context.player())) {
 				wolf.setAttached(ModAttachments.DOG_STATE, payload.state());
@@ -184,19 +204,70 @@ public class MorePups implements ModInitializer {
 				return;
 			}
 
-			if (skill.isBranch() && unlocked.stream().anyMatch(DogSkill::isBranch)) {
-				return;
-			}
-			if (wolf instanceof PupEntity pup) {
-				pup.getGoalSelector().addGoal(8, new MinerGoal(pup));
-			}
-
-
 			List<DogSkill> updated = new ArrayList<>(unlocked);
+
+			boolean switching = skill.parent() != null
+					&& updated.removeIf(existing -> existing != skill
+					&& existing.parent() == skill.parent());
+
+			if (switching) {
+				ItemStack held = wolf.getMainHandItem();
+
+				if (!held.isEmpty() && wolf.level() instanceof ServerLevel serverLevel) {
+					wolf.spawnAtLocation(serverLevel, held.copy());
+					wolf.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				}
+
+				wolf.setAttached(ModAttachments.SKILL_POINTS, 0);
+			} else {
+				wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+			}
+
 			updated.add(skill);
 
 			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
-			wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+
+			DogSkillEffects.apply(wolf);
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(BuySkillPayload.TYPE, (payload, context) -> {
+			if (!(context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf)
+					|| !wolf.isOwnedBy(context.player())) {
+				return;
+			}
+
+			DogSkill skill = payload.skill();
+			List<DogSkill> unlocked = wolf.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
+			int points = wolf.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0);
+
+
+			if (points < 1 || unlocked.contains(skill)) {
+				return;
+			}
+
+			if (skill.parent() != null && !unlocked.contains(skill.parent())) {
+				return;
+			}
+
+			List<DogSkill> updated = new ArrayList<>(unlocked);
+
+			if (skill.isBranch()) {
+				updated.removeIf(DogSkill::isBranch);
+				ItemStack held = wolf.getMainHandItem();
+
+				if (!held.isEmpty() && wolf.level() instanceof ServerLevel serverLevel) {
+					wolf.spawnAtLocation(serverLevel, held.copy());
+					wolf.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				}
+
+				wolf.setAttached(ModAttachments.SKILL_POINTS, 0);
+			} else {
+				wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+			}
+
+			updated.add(skill);
+
+			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
 
 			DogSkillEffects.apply(wolf);
 		});

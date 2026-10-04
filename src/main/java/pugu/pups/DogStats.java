@@ -1,8 +1,11 @@
 package pugu.pups;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 
@@ -76,12 +79,24 @@ public class DogStats {
         int amount = Math.max(1, Math.round(baseAmount * xpMultiplier(dog)));
         int xp = dog.getAttachedOrElse(ModAttachments.XP, 0) + amount;
         int level = dog.getAttachedOrElse(ModAttachments.LEVEL, 1);
+
         while (xp >= level * 100) {
             xp -= level * 100;
             level++;
+
             dog.setAttached(ModAttachments.SKILL_POINTS,
                     dog.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0) + 1);
+
+            if (dog.level() instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                        dog.getX(), dog.getY() + dog.getBbHeight() * 0.5D, dog.getZ(),
+                        20, 0.4D, 0.4D, 0.4D, 0.1D);
+
+                serverLevel.playSound(null, dog.blockPosition(), SoundEvents.PLAYER_LEVELUP,
+                        SoundSource.NEUTRAL, 0.5F, 1.4F);
+            }
         }
+
         dog.setAttached(ModAttachments.XP, xp);
         dog.setAttached(ModAttachments.LEVEL, level);
     }

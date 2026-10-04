@@ -43,8 +43,8 @@ public class DogSkillScreen extends AbstractDogScreen {
 
     @Override
     protected void renderSidePanel(GuiGraphicsExtractor graphics, int sideLeft, int sideTop) {
-        List<DogSkill> unlocked = this.dog.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
 
+        List<DogSkill> unlocked = this.dog.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
         for (DogSkill skill : DogSkill.values()) {
             DogSkill parent = skill.parent();
 
@@ -114,10 +114,6 @@ public class DogSkillScreen extends AbstractDogScreen {
             return false;
         }
 
-        if (skill.isBranch() && unlocked.stream().anyMatch(DogSkill::isBranch)) {
-            return false;
-        }
-
         return this.dog.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0) > 0;
     }
 
@@ -147,6 +143,11 @@ public class DogSkillScreen extends AbstractDogScreen {
         graphics.fill(left, top, right + 1, bottom + 1, 0xFFFFFFFF);
     }
 
+    void switchPath(DogSkill skill) {
+        ClientPlayNetworking.send(new BuySkillPayload(this.dog.getId(), skill));
+        this.minecraft.gui.setScreen(this);
+    }
+
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         List<DogSkill> unlocked = this.dog.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
@@ -163,7 +164,16 @@ public class DogSkillScreen extends AbstractDogScreen {
 
             if (event.x() >= x && event.x() < x + NODE_SIZE
                     && event.y() >= y && event.y() < y + NODE_SIZE) {
-                ClientPlayNetworking.send(new BuySkillPayload(this.dog.getId(), skill));
+
+                boolean switching = skill.isBranch()
+                        && unlocked.stream().anyMatch(DogSkill::isBranch);
+
+                if (switching) {
+                    this.minecraft.gui.setScreen(new ConfirmSwitchPathScreen(this, skill));
+                } else {
+                    ClientPlayNetworking.send(new BuySkillPayload(this.dog.getId(), skill));
+                }
+
                 return true;
             }
         }
