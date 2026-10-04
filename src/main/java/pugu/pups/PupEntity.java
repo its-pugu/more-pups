@@ -45,6 +45,8 @@ public class PupEntity extends Wolf implements GeoEntity {
             DataTicket.create("more_pups_collar", Integer.class);
     public static final DataTicket<Boolean> BABY_TICKET =
             DataTicket.create("more_pups_baby", Boolean.class);
+    public static final DataTicket<Float> PET_TICKET =
+            DataTicket.create("more_pups_pet", Float.class);
 
     private static final EntityDimensions DACHSHUND_DIMENSIONS = EntityDimensions.scalable(0.5F, 0.5F);
     private static final EntityDimensions PUG_DIMENSIONS = EntityDimensions.scalable(0.6F, 0.6F);

@@ -1,13 +1,11 @@
 package pugu.pups;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -45,24 +43,6 @@ public class MorePupsClient implements ClientModInitializer {
             }
         }), ModBlocks.DOG_BED);
 
-        KeyMapping.Category category = KeyMapping.Category.register(MorePups.id("general"));
-
-
-        KeyMapping petKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key.more-pups.pet_dog",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_P,
-                category));
-
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (petKey.consumeClick()) {
-                if (client.crosshairPickEntity instanceof Wolf wolf
-                        && wolf.isTame() && wolf.isOwnedBy(client.player)) {
-                    ClientPlayNetworking.send(new PetDogPayload(wolf.getId()));
-                }
-            }
-        });
-
         ClientPlayNetworking.registerGlobalReceiver(DogListPayload.TYPE, (payload, context) ->
                 Minecraft.getInstance().gui.setScreen(new DogWhistleScreen(payload.dogs())));
 
@@ -71,13 +51,30 @@ public class MorePupsClient implements ClientModInitializer {
                 return InteractionResult.PASS;
             }
 
-            if (player.isSecondaryUseActive() && entity instanceof Wolf wolf
-                    && wolf.isTame() && wolf.isOwnedBy(player)) {
+            if (!(entity instanceof Wolf wolf) || !wolf.isTame() || !wolf.isOwnedBy(player)) {
+                return InteractionResult.PASS;
+            }
+
+            if (isControlDown()) {
+                ClientPlayNetworking.send(new PetDogPayload(wolf.getId()));
+                PetAnimations.record(wolf.getId(), level.getGameTime());
+
+                return InteractionResult.SUCCESS;
+            }
+
+            if (player.isSecondaryUseActive()) {
                 Minecraft.getInstance().gui.setScreen(new DogStateScreen(wolf));
                 return InteractionResult.SUCCESS;
             }
 
             return InteractionResult.PASS;
         });
+    }
+
+    private static boolean isControlDown() {
+        Window window = Minecraft.getInstance().getWindow();
+
+        return InputConstants.isKeyDown(window, GLFW.GLFW_KEY_LEFT_CONTROL)
+                || InputConstants.isKeyDown(window, GLFW.GLFW_KEY_RIGHT_CONTROL);
     }
 }

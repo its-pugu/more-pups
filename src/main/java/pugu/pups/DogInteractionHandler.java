@@ -13,15 +13,29 @@ public class DogInteractionHandler {
                 return InteractionResult.PASS;
             }
 
-            if (!level.isClientSide() && wolf instanceof PupEntity pup
-                    && pup.isTame() && pup.isOwnedBy(player)
-                    && pup.getMainHandItem().isEmpty()) {
+            if (level.isClientSide()) {
+                return InteractionResult.PASS;
+            }
 
+            if (!wolf.isTame() || !wolf.isOwnedBy(player)) {
+                return InteractionResult.PASS;
+            }
+
+            long now = level.getGameTime();
+            long lastPet = wolf.getAttachedOrElse(ModAttachments.LAST_PET, 0L);
+
+            if (now - lastPet < 3) {
+                return InteractionResult.SUCCESS;
+            }
+
+            ItemStack held = player.getItemInHand(hand);
+
+            if (wolf instanceof PupEntity pup && pup.getMainHandItem().isEmpty()) {
                 DogSkill dogClass = DogStats.classOf(pup);
-                ItemStack held = player.getItemInHand(hand);
 
                 if (dogClass != null && dogClass.accepts(held)) {
                     ItemStack single = held.copyWithCount(1);
+
                     pup.setItemSlot(EquipmentSlot.MAINHAND, single);
                     pup.setGuaranteedDrop(EquipmentSlot.MAINHAND);
                     held.shrink(1);
@@ -30,26 +44,11 @@ public class DogInteractionHandler {
                 }
             }
 
-            if (!level.isClientSide() && wolf.isTame() && wolf.isOwnedBy(player)
-                    && player.getItemInHand(hand).is(ModItems.DOG_TREAT)) {
+            if (held.is(ModItems.DOG_TREAT)) {
                 DogStats.feed(wolf, 40);
             }
 
-
             if (!player.isSecondaryUseActive()) {
-                return InteractionResult.PASS;
-            }
-
-
-            if (!player.isSecondaryUseActive()) {
-                return InteractionResult.PASS;
-            }
-
-            if (!wolf.isTame() || !wolf.isOwnedBy(player)) {
-                return InteractionResult.PASS;
-            }
-
-            if (level.isClientSide()) {
                 return InteractionResult.PASS;
             }
 

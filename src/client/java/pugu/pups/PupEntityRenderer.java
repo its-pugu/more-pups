@@ -25,6 +25,8 @@ public class PupEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntity
         super.addRenderData(animatable, relatedObject, renderState, partialTick);
         renderState.addGeckolibData(PupEntity.BREED_TICKET, animatable.getBreed());
         renderState.addGeckolibData(PupEntity.BABY_TICKET, animatable.isBaby());
+        renderState.addGeckolibData(PupEntity.PET_TICKET,
+                PetAnimations.progress(animatable.getId(), animatable.level().getGameTime(), partialTick));
     }
 
     @Override
@@ -38,4 +40,21 @@ public class PupEntityRenderer extends GeoEntityRenderer<PupEntity, LivingEntity
             boneSnapshot.setRotX(-renderState.xRot * Mth.DEG_TO_RAD);
         });
     }
+    @Override
+    public void scaleModelForRender(RenderPassInfo<LivingEntityRenderState> renderPassInfo,
+                                    float widthScale, float heightScale) {
+        float progress = renderPassInfo.renderState()
+                .getOrDefaultGeckolibData(PupEntity.PET_TICKET, 0.0F);
+
+        if (progress > 0.0F) {
+            float squash = (float) Math.sin(progress * Math.PI) * 0.15F;
+
+            widthScale *= 1.0F + squash;
+            heightScale *= 1.0F - squash;
+        }
+
+        super.scaleModelForRender(renderPassInfo, widthScale, heightScale);
+    }
+
+
 }
