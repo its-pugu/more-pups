@@ -6,6 +6,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -175,6 +176,9 @@ public class ExplorerGoal extends Goal {
         for (ItemStack stack : level.getServer().reloadableRegistries()
                 .getLootTable(TREASURE).getRandomItems(params)) {
             this.dog.spawnAtLocation(level, stack);
+        }
+        if (this.dog.getOwner() instanceof ServerPlayer owner) {
+            ModTriggers.DOG_ACTION.fire(owner, "find_treasure");
         }
     }
 

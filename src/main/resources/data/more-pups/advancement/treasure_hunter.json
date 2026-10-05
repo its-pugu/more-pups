@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:find_your_calling",
+  "display": {
+    "icon": { "id": "minecraft:map" },
+    "title": { "translate": "advancements.more-pups.treasure_hunter.title" },
+    "description": { "translate": "advancements.more-pups.treasure_hunter.description" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "found_treasure": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "find_treasure" }
+    }
+  },
+  "requirements": [["found_treasure"]]
+}

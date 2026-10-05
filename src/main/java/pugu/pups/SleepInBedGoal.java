@@ -1,6 +1,7 @@
 package pugu.pups;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.level.Level;
@@ -34,6 +35,7 @@ public class SleepInBedGoal extends Goal {
 
         this.retryTimer = 100;
         this.bedPos = this.findBed();
+
         return this.bedPos != null;
     }
 
@@ -77,6 +79,8 @@ public class SleepInBedGoal extends Goal {
 
     private void claimAndSleep() {
         if (this.wolf.level().getBlockEntity(this.bedPos) instanceof DogBedBlockEntity bed) {
+            boolean wasUnclaimed = bed.isUnclaimed();
+
             bed.claim(this.wolf.getUUID());
             this.wolf.setAttached(ModAttachments.DOG_BED_POS, this.bedPos);
             this.wolf.getNavigation().stop();
@@ -85,6 +89,10 @@ public class SleepInBedGoal extends Goal {
                     this.bedPos.getZ() + 0.5D, this.wolf.getYRot(), 0.0F);
 
             DogStats.rest(this.wolf, 100);
+
+            if (wasUnclaimed && this.wolf.getOwner() instanceof ServerPlayer owner) {
+                ModTriggers.DOG_ACTION.fire(owner, "claim_bed");
+            }
 
             if (this.wolf instanceof PupEntity pup) {
                 pup.setSleeping(true);

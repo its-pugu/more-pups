@@ -56,6 +56,8 @@ public class DogSummoning {
             pup.setSleeping(false);
         }
 
+        ModTriggers.DOG_ACTION.fire(player, "summon_dog");
+
         unforce(level, forced);
     }
 

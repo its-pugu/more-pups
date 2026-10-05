@@ -3,6 +3,7 @@ package pugu.pups;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -95,6 +96,9 @@ public class MinerGoal extends Goal {
             serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
                     this.dog.getX(), this.dog.getY() + this.dog.getBbHeight(), this.dog.getZ(),
                     5, 0.3D, 0.2D, 0.3D, 0.0D);
+        }
+        if (this.dog.getOwner() instanceof ServerPlayer owner) {
+            ModTriggers.DOG_ACTION.fire(owner, "detect_ore");
         }
     }
 

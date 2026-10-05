@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:mans_best_friend",
+  "display": {
+    "icon": { "id": "more-pups:dachshund_spawn_egg" },
+    "title": { "translate": "advancements.more-pups.find_your_calling.title" },
+    "description": { "translate": "advancements.more-pups.find_your_calling.description" },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "chose_class": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "choose_class" }
+    }
+  },
+  "requirements": [["chose_class"]]
+}

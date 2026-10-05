@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:the_lazy_brown_dog",
+  "display": {
+    "icon": { "id": "more-pups:dog_bed" },
+    "title": { "translate": "advancements.more-pups.sweet_dreams.title" },
+    "description": { "translate": "advancements.more-pups.sweet_dreams.description" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "claimed_bed": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "claim_bed" }
+    }
+  },
+  "requirements": [["claimed_bed"]]
+}

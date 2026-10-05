@@ -18,7 +18,7 @@ public class ModBlocks {
     public static final Block DOG_BED = register(DOG_BED_ID, DogBedBlock::new,
             BlockBehaviour.Properties.of()
                     .mapColor(MapColor.WOOL)
-                    .strength(2.0F)
+                    .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOL)
                     .noOcclusion());
 

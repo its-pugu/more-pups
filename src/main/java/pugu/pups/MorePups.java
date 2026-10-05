@@ -46,6 +46,7 @@ public class MorePups implements ModInitializer {
 		ModDataComponents.initialize();
 		ModRecipes.initialize();
 		ModAttachments.initialize();
+		ModTriggers.initialize();
 		ModCommands.initialize();
 		DogInteractionHandler.initialize();
 
@@ -123,7 +124,6 @@ public class MorePups implements ModInitializer {
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(SetDogStatePayload.TYPE, (payload, context) -> {
-
 			if (context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf
 					&& wolf.isOwnedBy(context.player())) {
 				wolf.setAttached(ModAttachments.DOG_STATE, payload.state());
@@ -228,48 +228,10 @@ public class MorePups implements ModInitializer {
 			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
 
 			DogSkillEffects.apply(wolf);
-		});
-
-		ServerPlayNetworking.registerGlobalReceiver(BuySkillPayload.TYPE, (payload, context) -> {
-			if (!(context.player().level().getEntity(payload.entityId()) instanceof Wolf wolf)
-					|| !wolf.isOwnedBy(context.player())) {
-				return;
-			}
-
-			DogSkill skill = payload.skill();
-			List<DogSkill> unlocked = wolf.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.of());
-			int points = wolf.getAttachedOrElse(ModAttachments.SKILL_POINTS, 0);
-
-
-			if (points < 1 || unlocked.contains(skill)) {
-				return;
-			}
-
-			if (skill.parent() != null && !unlocked.contains(skill.parent())) {
-				return;
-			}
-
-			List<DogSkill> updated = new ArrayList<>(unlocked);
 
 			if (skill.isBranch()) {
-				updated.removeIf(DogSkill::isBranch);
-				ItemStack held = wolf.getMainHandItem();
-
-				if (!held.isEmpty() && wolf.level() instanceof ServerLevel serverLevel) {
-					wolf.spawnAtLocation(serverLevel, held.copy());
-					wolf.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-				}
-
-				wolf.setAttached(ModAttachments.SKILL_POINTS, 0);
-			} else {
-				wolf.setAttached(ModAttachments.SKILL_POINTS, points - 1);
+				ModTriggers.DOG_ACTION.fire(context.player(), "choose_class");
 			}
-
-			updated.add(skill);
-
-			wolf.setAttached(ModAttachments.UNLOCKED_SKILLS, List.copyOf(updated));
-
-			DogSkillEffects.apply(wolf);
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(DropDogItemPayload.TYPE, (payload, context) -> {

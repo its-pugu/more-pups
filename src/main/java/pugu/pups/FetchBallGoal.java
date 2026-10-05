@@ -1,5 +1,6 @@
 package pugu.pups;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -69,6 +70,10 @@ public class FetchBallGoal extends Goal {
             this.targetBall.discard();
             this.dog.setCarriedBall(carried);
             DogStats.play(this.dog, 15);
+
+            if (this.dog.getOwner() instanceof ServerPlayer owner) {
+                ModTriggers.DOG_ACTION.fire(owner, "fetch_ball");
+            }
         }
     }
 

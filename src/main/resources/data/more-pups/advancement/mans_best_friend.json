@@ -10,7 +10,7 @@
       "translate": "advancements.more-pups.mans_best_friend.description"
     },
     "frame": "task",
-    "background": "more-pups:textures/block/dog_bed_top.png",
+    "background": "minecraft:block/dirt",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false

@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:find_your_calling",
+  "display": {
+    "icon": { "id": "minecraft:diamond_pickaxe" },
+    "title": { "translate": "advancements.more-pups.sniffed_it_out.title" },
+    "description": { "translate": "advancements.more-pups.sniffed_it_out.description" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "detected_ore": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "detect_ore" }
+    }
+  },
+  "requirements": [["detected_ore"]]
+}

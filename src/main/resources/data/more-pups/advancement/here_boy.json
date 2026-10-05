@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:demand_some_attention",
+  "display": {
+    "icon": { "id": "more-pups:dog_whistle" },
+    "title": { "translate": "advancements.more-pups.here_boy.title" },
+    "description": { "translate": "advancements.more-pups.here_boy.description" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "summoned_dog": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "summon_dog" }
+    }
+  },
+  "requirements": [["summoned_dog"]]
+}

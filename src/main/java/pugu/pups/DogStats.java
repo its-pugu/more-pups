@@ -45,6 +45,10 @@ public class DogStats {
                     player.getBoundingBox().inflate(128.0D),
                     candidate -> candidate.isTame() && candidate.isOwnedBy(player))) {
                 decay(dog, decaySleep);
+
+                if (dog.distanceToSqr(player) < 256.0D) {
+                    awardXp(dog, 1);
+                }
             }
         }
     }
@@ -71,8 +75,13 @@ public class DogStats {
         return (food * FOOD_WEIGHT + play * PLAY_WEIGHT + sleep * SLEEP_WEIGHT) / 100;
     }
 
-    public static int xpForNextLevel(Wolf dog) {
-        return dog.getAttachedOrElse(ModAttachments.LEVEL, 1) * 100;
+    public static float xpMultiplier(Wolf dog) {
+        return 0.5F + happiness(dog) / 100.0F;
+    }
+
+    public static DogSkill classOf(Wolf dog) {
+        return dog.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.<DogSkill>of())
+                .stream().filter(DogSkill::isBranch).findFirst().orElse(null);
     }
 
     public static void awardXp(Wolf dog, int baseAmount) {
@@ -95,19 +104,14 @@ public class DogStats {
                 serverLevel.playSound(null, dog.blockPosition(), SoundEvents.PLAYER_LEVELUP,
                         SoundSource.NEUTRAL, 0.5F, 1.4F);
             }
+
+            if (level >= 10 && dog.getOwner() instanceof ServerPlayer owner) {
+                ModTriggers.DOG_ACTION.fire(owner, "level_ten");
+            }
         }
 
         dog.setAttached(ModAttachments.XP, xp);
         dog.setAttached(ModAttachments.LEVEL, level);
-    }
-
-    public static DogSkill classOf(Wolf dog) {
-        return dog.getAttachedOrElse(ModAttachments.UNLOCKED_SKILLS, List.<DogSkill>of())
-                .stream().filter(DogSkill::isBranch).findFirst().orElse(null);
-    }
-
-    public static float xpMultiplier(Wolf dog) {
-        return 0.5F + happiness(dog) / 100.0F;
     }
 
     public static void feed(Wolf dog, int amount) {

@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:find_your_calling",
+  "display": {
+    "icon": { "id": "minecraft:experience_bottle" },
+    "title": { "translate": "advancements.more-pups.top_dog.title" },
+    "description": { "translate": "advancements.more-pups.top_dog.description" },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached_level_ten": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "level_ten" }
+    }
+  },
+  "requirements": [["reached_level_ten"]]
+}

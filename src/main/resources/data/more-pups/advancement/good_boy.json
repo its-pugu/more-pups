@@ -1,0 +1,19 @@
+{
+  "parent": "more-pups:very_fetching",
+  "display": {
+    "icon": { "id": "more-pups:ball" },
+    "title": { "translate": "advancements.more-pups.good_boy.title" },
+    "description": { "translate": "advancements.more-pups.good_boy.description" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "fetched_ball": {
+      "trigger": "more-pups:dog_action",
+      "conditions": { "action": "fetch_ball" }
+    }
+  },
+  "requirements": [["fetched_ball"]]
+}
