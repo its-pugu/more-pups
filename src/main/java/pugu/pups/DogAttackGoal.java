@@ -1,9 +1,11 @@
 package pugu.pups;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.item.component.SwingAnimation;
 
 import java.util.EnumSet;
 
@@ -68,7 +70,7 @@ public class DogAttackGoal extends Goal {
 
         if (this.dog.distanceToSqr(target) <= this.attackRangeSqr(target)) {
             this.cooldown = ATTACK_COOLDOWN;
-            this.dog.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+            this.dog.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, false);
 
             if (this.dog.level() instanceof ServerLevel serverLevel) {
                 this.dog.doHurtTarget(serverLevel, target);

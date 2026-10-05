@@ -2,10 +2,10 @@ package pugu.pups;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.predicates.ContextAwarePredicate;
-import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.Optional;
 
@@ -20,11 +20,11 @@ public class DogTrigger extends SimpleCriterionTrigger<DogTrigger.TriggerInstanc
         this.trigger(player, instance -> instance.matches(action));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, String action)
+    public record TriggerInstance(Optional<Holder<LootItemCondition>> player, String action)
             implements SimpleCriterionTrigger.SimpleInstance {
 
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
+                LootItemCondition.CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
                 Codec.STRING.fieldOf("action").forGetter(TriggerInstance::action)
         ).apply(instance, TriggerInstance::new));
 

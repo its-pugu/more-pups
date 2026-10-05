@@ -1,14 +1,8 @@
 {
   "display": {
-    "icon": {
-      "id": "more-pups:dog_treat"
-    },
-    "title": {
-      "translate": "advancements.more-pups.mans_best_friend.title"
-    },
-    "description": {
-      "translate": "advancements.more-pups.mans_best_friend.description"
-    },
+    "icon": { "id": "more-pups:dog_treat" },
+    "title": { "translate": "advancements.more-pups.mans_best_friend.title" },
+    "description": { "translate": "advancements.more-pups.mans_best_friend.description" },
     "frame": "task",
     "background": "minecraft:block/dirt",
     "show_toast": true,
@@ -19,15 +13,13 @@
     "tamed_dog": {
       "trigger": "minecraft:tame_animal",
       "conditions": {
-        "entity": [
-          {
-            "condition": "minecraft:entity_properties",
-            "entity": "this",
-            "predicate": {
-              "entity_type": "more-pups:pup"
-            }
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "entity_type": "more-pups:pup"
           }
-        ]
+        }
       }
     }
   },

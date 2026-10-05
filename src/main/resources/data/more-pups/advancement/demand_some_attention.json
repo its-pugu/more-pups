@@ -1,15 +1,9 @@
 {
   "parent": "more-pups:mans_best_friend",
   "display": {
-    "icon": {
-      "id": "more-pups:dog_whistle"
-    },
-    "title": {
-      "translate": "advancements.more-pups.demand_some_attention.title"
-    },
-    "description": {
-      "translate": "advancements.more-pups.demand_some_attention.description"
-    },
+    "icon": { "id": "more-pups:dog_whistle" },
+    "title": { "translate": "advancements.more-pups.demand_some_attention.title" },
+    "description": { "translate": "advancements.more-pups.demand_some_attention.description" },
     "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
@@ -18,9 +12,7 @@
   "criteria": {
     "crafted_whistle": {
       "trigger": "minecraft:recipe_crafted",
-      "conditions": {
-        "recipe_id": "more-pups:dog_whistle"
-      }
+      "conditions": { "recipes": ["more-pups:dog_whistle"] }
     }
   },
   "requirements": [["crafted_whistle"]]

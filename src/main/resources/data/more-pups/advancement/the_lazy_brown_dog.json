@@ -1,15 +1,9 @@
 {
   "parent": "more-pups:mans_best_friend",
   "display": {
-    "icon": {
-      "id": "more-pups:dog_bed"
-    },
-    "title": {
-      "translate": "advancements.more-pups.the_lazy_brown_dog.title"
-    },
-    "description": {
-      "translate": "advancements.more-pups.the_lazy_brown_dog.description"
-    },
+    "icon": { "id": "more-pups:dog_bed" },
+    "title": { "translate": "advancements.more-pups.the_lazy_brown_dog.title" },
+    "description": { "translate": "advancements.more-pups.the_lazy_brown_dog.description" },
     "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
@@ -18,9 +12,7 @@
   "criteria": {
     "crafted_bed": {
       "trigger": "minecraft:recipe_crafted",
-      "conditions": {
-        "recipe_id": "more-pups:dog_bed"
-      }
+      "conditions": { "recipes": ["more-pups:dog_bed"] }
     }
   },
   "requirements": [["crafted_bed"]]
